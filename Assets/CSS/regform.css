@@ -1,0 +1,148 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    font-family:oswald, Arial, Helvetica, sans-serif ;
+}
+main{
+    background-repeat: no-repeat;
+   background-image:linear-gradient(50deg,rgb(9, 9, 9,0.5),rgb(0, 0, 0,0.7)), url("../Image/farm5.jpg");
+   background-size: cover;
+   background-position: center;
+   /* filter: brightness(10%); */
+   /* filter: contrast(90%); */
+    /* background: linear-gradient(75deg,rgb(255, 166, 0,0.5),rgb(255, 183, 0,0.5)); */
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+main .form{
+    background-color: rgb(211, 210, 210,0.2);
+    height: 60vh;
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    border: 1px solid rgb(43, 209, 43);
+    border-radius: 15%;
+    box-shadow: 0 0 10px;
+    backdrop-filter: blur(50px);
+    padding: 15px 0;
+}
+main .form p{
+    color: rgb(255, 255, 255);
+}
+main .form a{
+    color: rgb(255, 68, 0);
+    cursor: pointer;
+}
+main .form input,#paymod{
+    /* color: rgb(4, 249, 4); */
+    /* background-color: transparent; */
+    background-color: rgb(209, 209, 209,0.6);
+    outline: none;
+    height: 30px;
+    border-radius: 15px;
+    width: 80%;
+    /* border: none;  */
+    border: 1px solid rgb(251, 112, 6);
+    text-align: center;
+}
+/* main .form input:hover,#paymod:hover,#c-code:hover,#country:hover,#gender:hover{
+    background-color: rgb(255, 255, 6);
+    font-weight: 900;
+}
+main .form #c-code:hover{
+    background-color: rgb(255, 255, 6);
+    font-weight: 900;
+} */
+main .form input{
+    font-weight: 700;
+}
+main .form .telnum{
+    align-items: center;
+    display: flex;
+    height: 40px;
+    width: 100%;
+}
+main .form .telnum p{
+    margin-left: 45px;
+}
+main .form .telnum #c-code{
+    background-color: rgb(209, 209, 209,0.6);
+    font-weight: 700;
+    border: 1px solid orange;
+    margin-left: 5px;
+    outline: none;
+    height: 30px;
+    border-radius: 15px;
+}
+main .form .telnum #telnum,#paymod{
+    margin-left: 8px;
+    font-weight: 700;
+    width: 40%;
+}
+main .form .paysection #paymod{
+    padding-left: 70px;
+}
+.paysection{
+    display: flex;
+    margin-top: 10px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.countrygender{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+}
+.countrygender #country,#gender{
+    background-color: rgb(209, 209, 209,0.6);
+    font-weight: 700;
+    outline: none;
+    height: 30px;
+    border-radius: 15px;
+    width: 100px;
+    /* border: none; */
+    border: 1px solid orange;
+    text-align: center;
+    padding-left: 0px;
+    margin: 0 5px 0 10px;
+}
+main .form .signup{
+    background-color: rgb(255, 145, 67);
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1px solid rgb(0, 255, 0);
+}
+main .form .signup:hover{
+    background-color: rgb(11, 227, 11);
+}
+.close{
+    position: absolute;
+   padding: 10px 15px;  
+    z-index: 1;
+    font-size: 20px;
+    background-color: white;
+    top: 140px;
+    right: 530px;
+    border-radius: 20px;
+    border: 1px solid rgb(6, 247, 6);
+    background-color: transparent;
+    color: red;
+    outline: none;
+
+}
+.close:hover{
+    background-color: rgb(255, 71, 71);
+    color: black;
+    font-weight: 700;
+}

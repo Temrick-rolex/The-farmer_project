@@ -1,0 +1,319 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+body{
+    font-family:oswald, Arial, Helvetica, sans-serif ;
+    /* margin-top: 80px; */
+}
+                                                    /*navigation bar*/
+.navigation-bar{
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: orange;
+    height: 10vh;
+    z-index: 100;
+}
+.navigation-bar .logo{
+    width: 20%;
+    height: 10vh;
+    display: flex;
+    /* background-color: azure; */
+    align-items: center;
+    min-width: 170PX;
+    flex-shrink: 0;
+    text-shadow: 2px 2px 2px white;
+    font-size: 30px;
+    color:  rgb(4, 143, 4);
+
+}
+.navigation-bar .logo .img{
+    height: 60px;
+    width:60px;
+    /* background-color: green; */
+    border-radius: 30px;
+    margin-left:20px;
+    margin-right: 10px;
+    object-fit: cover;
+}
+.navigation-bar .menu{
+    width: 55%;
+    display: flex;
+    height: 10vh;
+    /* background-color: aquamarine; */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0PX;
+    min-width: 500px;
+    
+}
+.navigation-bar .menu ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.navigation-bar .menu a,li{
+    text-decoration: none;
+    color: white;
+    display: inline;
+    text-align: center;
+    padding: 10px;
+}
+
+.navigation-bar .menu a,li:hover{
+    color:green;
+}
+.active{
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+    padding-top: 3px;
+    padding: 20px;
+    
+}
+
+.navigation-bar .profile{
+    width: 25%;
+    display: flex;
+    /* background-color: blue; */
+    align-items: center;
+    justify-content: center;
+    min-width: 150PX;
+    flex-shrink: 0;
+
+}
+/*profile picture as div with color black*/
+/* .navigation-bar .profile .img{
+    height: 60px;
+    width: 60px;
+    border-radius: 30px; */
+    /* background-color: black; */
+    /* margin-left: 50px; */
+/* } */
+.navigation-bar .profile .relative{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 10vh;
+    width: 50%;
+    cursor: pointer;
+    /* background-color: rgb(156, 152, 152); */
+
+}
+
+.navigation-bar .profile  .relative .message{
+    text-align: center;
+    position: absolute;
+    height: 15px;
+    width: 90px;
+    border-radius: 15px;
+    top: 100%;
+    left: 50%;
+   transform: translate(-50%,-50%);
+   background-color: rgba(0,0, 0, 0.7);
+   color: white;
+   padding: 10px;
+   opacity: 0;
+   transition:opacity 0.3s ease;
+  pointer-events: none;
+}
+.navigation-bar .profile .relative:hover
+.message{
+    opacity: 1;
+}
+
+.navigation-bar .profile .signup{
+    height: 10vh;
+    width: 50%;
+    /* background-color: gray; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.navigation-bar .profile .signup button{
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    border: none;
+    box-shadow: 3px 3px 10px;
+    background-color: rgb(6, 219, 5);
+}
+
+.navigation-bar .profile .signup button:active{
+    opacity: 0.8;
+    margin: 10px 40px;
+}
+
+                                                            /* end of navigation bar styles */
+
+
+                                                            /* body styling  */
+
+main{
+    height: 100vh;
+    width: 100%;
+    /* background-color: purple; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(249, 231, 199);
+}
+.profil{
+    margin-top: 100px;
+    height: 80vh;
+    width: 50%;
+    /* background-color: blueviolet; */
+    display: flex;
+    flex-direction: column;
+}
+.profil .profiltop{
+    height: 20vh;
+    width:100%;
+    /* background-color: violet; */
+    /* position: relative; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profilim{
+    width:10%;
+    height: 20vh;
+    position: relative;
+    /* border: 2px solid; */
+}
+
+.profil .profiltop .profilim .profile-img{
+    position: absolute;
+    height: 150px;
+    width: 150px;
+    border-radius: 75px;
+    /* object-fit: contain; */
+    top: 60px;
+    right: -40px;
+}
+
+.profil .profiltop .logininfo{
+    height: 20vh;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-left: 100px; */
+    /* border: 1px solid ; */
+}
+
+.profil .profiltop .logininfo label{
+    border-bottom: 2px solid rgb(4, 251, 4);
+    margin-left: 30px;
+}
+
+.profil .profiltop .logininfo label input{
+    height: 30px;
+    width: 50%;
+    background-color: transparent;
+    border:none;
+    text-align: center;
+    outline: none;
+    cursor: default;
+}
+
+.view,.copy{
+    cursor: pointer;
+}
+
+.profil .profiltop  button{
+    margin: auto;
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid rgb(4, 247, 4);
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+    
+}
+
+.profil .profiltop  button:hover{
+         border-bottom: 2px solid rgb(4, 247, 4);
+        background-color:rgba(243, 239, 211, 0.938) ;
+        font-weight: 700px;
+        
+}
+.profilbottom{
+    height: 60vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    border: 3px solid rgb(255, 85, 0);
+    border-radius: 10px;
+}
+.profilbottom label{
+    width: 70%;
+    border-bottom: 2px solid rgb(4, 251, 4);
+}
+.profilbottom label i{
+    margin-left: 50px;
+}
+.profilbottom input{
+    height: 30px;
+    width: 70%;
+    text-align: center;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: default;
+}
+
+
+.actions{
+    height: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.del{
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid orangered;
+    background-color: transparent;
+    cursor: pointer; 
+    outline: none;
+    box-shadow: 5px 2px 10px rgb(130, 130, 130);
+}
+.del:hover{
+    color: white;
+    background-color: red;
+    padding: 10px 20px;
+}
+.del:active{
+    opacity: 0.8;
+}
+
+.edit{
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid rgb(4, 248, 4);
+    background-color: transparent;
+    cursor: pointer; 
+    outline: none;
+    box-shadow: 5px 2px 10px rgb(130, 130, 130);
+}
+.edit:hover{
+    color: white;
+    background-color: rgb(6, 254, 6);
+    padding: 10px 20px;
+}
+.edit:active{
+    opacity: 0.8;
+   }
