@@ -1,0 +1,10 @@
+# The Farmer — Apache helpers (forward slashes only, hide app source).
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^app/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^tools/ - [F,L]
+</IfModule>

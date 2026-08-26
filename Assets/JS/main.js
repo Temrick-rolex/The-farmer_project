@@ -33,19 +33,20 @@
   window.TF = TF;
 
   /* ---------------- Catalog + cart ---------------- */
+  var ASSET = (window.TF_ASSET || '/Assets').replace(/\\/g, '/');
   var CATALOG = {
-    p1:  { name: 'Mature Orange Tree (Valencia)', price: 30000, img: 'Assets/Image/product-images/88423a61-a94d-4d96-ba54-62aa4372992c_1500x1875.jpeg' },
-    p2:  { name: 'Mature Tangerine Tree',         price: 25000, img: 'Assets/Image/product-images/Tangerine-SpotlessFruitsIndia_1024x1024.png' },
-    p3:  { name: 'Fresh Oranges — 5 kg basket',   price: 3500,  img: 'Assets/Image/product-images/Orange-Fruit-Pieces.jpg' },
-    p4:  { name: 'Fresh Lemons — 3 kg',           price: 2800,  img: 'Assets/Image/product-images/27554428-lemon-fruits-with-leaves-isolated-on-white.jpg' },
-    p5:  { name: 'Fresh Limes — 3 kg',            price: 2500,  img: 'Assets/Image/product-images/Lime-copy-scaled-1.jpg' },
-    p6:  { name: 'Mixed Citrus Platter — 6 kg',   price: 6000,  img: 'Assets/Image/product-images/images-7.jpeg' },
-    p7:  { name: 'Fresh Orange Juice — 1 L',      price: 1800,  img: 'Assets/Image/product-images/94253411-orange-juice-in-a-glass-bottle-and-orange-fruit-with-green-leaves-isolated-on-white-background.jpg' },
-    p8:  { name: 'Fresh Lemon Juice — 1 L',       price: 1800,  img: 'Assets/Image/product-images/bottle-lemon-juice-fresh-lemons-25336807.jpg' },
-    p9:  { name: 'Sparkling Grapefruit — 750 ml', price: 8500,  img: 'Assets/Image/product-images/cd2304634ba009da07e0e2f77650cedc0cf695de213a16fd6171548fed4629d4.jpg' },
-    p10: { name: 'Natural Orange Wine — 750 ml',  price: 9000,  img: 'Assets/Image/product-images/images2.jpeg' },
-    p11: { name: 'Farm Visit & Self-Harvest',     price: 15000, img: 'Assets/Image/farm6.jpg' },
-    p12: { name: 'Orchard Box — 1 month',         price: 12000, img: 'Assets/Image/farm5.jpg' }
+    p1:  { name: 'Mature Orange Tree (Valencia)', price: 30000, img: ASSET + '/Image/product-images/88423a61-a94d-4d96-ba54-62aa4372992c_1500x1875.jpeg' },
+    p2:  { name: 'Mature Tangerine Tree',         price: 25000, img: ASSET + '/Image/product-images/Tangerine-SpotlessFruitsIndia_1024x1024.png' },
+    p3:  { name: 'Fresh Oranges — 5 kg basket',   price: 3500,  img: ASSET + '/Image/product-images/Orange-Fruit-Pieces.jpg' },
+    p4:  { name: 'Fresh Lemons — 3 kg',           price: 2800,  img: ASSET + '/Image/product-images/27554428-lemon-fruits-with-leaves-isolated-on-white.jpg' },
+    p5:  { name: 'Fresh Limes — 3 kg',            price: 2500,  img: ASSET + '/Image/product-images/Lime-copy-scaled-1.jpg' },
+    p6:  { name: 'Mixed Citrus Platter — 6 kg',   price: 6000,  img: ASSET + '/Image/product-images/images-7.jpeg' },
+    p7:  { name: 'Fresh Orange Juice — 1 L',      price: 1800,  img: ASSET + '/Image/product-images/94253411-orange-juice-in-a-glass-bottle-and-orange-fruit-with-green-leaves-isolated-on-white-background.jpg' },
+    p8:  { name: 'Fresh Lemon Juice — 1 L',       price: 1800,  img: ASSET + '/Image/product-images/bottle-lemon-juice-fresh-lemons-25336807.jpg' },
+    p9:  { name: 'Sparkling Grapefruit — 750 ml', price: 8500,  img: ASSET + '/Image/product-images/cd2304634ba009da07e0e2f77650cedc0cf695de213a16fd6171548fed4629d4.jpg' },
+    p10: { name: 'Natural Orange Wine — 750 ml',  price: 9000,  img: ASSET + '/Image/product-images/images2.jpeg' },
+    p11: { name: 'Farm Visit & Self-Harvest',     price: 15000, img: ASSET + '/Image/farm6.jpg' },
+    p12: { name: 'Orchard Box — 1 month',         price: 12000, img: ASSET + '/Image/farm5.jpg' }
   };
 
   var cart = {};
@@ -225,7 +226,18 @@
       });
       updateBadges();
       renderCart();
+    } else {
+      updateBadges();
     }
+
+    $$('.cart-link').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if ($('#cartDrawer')) {
+          e.preventDefault();
+          openCart();
+        }
+      });
+    });
 
     // add-to-cart buttons (product cards)
     document.addEventListener('click', function (e) {
@@ -385,8 +397,7 @@
         if (user.value.trim().length < 2) { setInvalid(user, true, 'Please enter your name or email'); ok = false; } else setInvalid(user, false);
         if (pw.value.length < 4) { setInvalid(pw, true, 'Please enter your password'); ok = false; } else setInvalid(pw, false);
         if (ok) {
-          TF.toast('Logged in as ' + user.value.trim() + ' (demo)', 'success', 3200);
-          setTimeout(function () { window.location.href = 'index.php'; }, 900);
+          login.submit();
         }
       });
     }
