@@ -58,21 +58,9 @@ function is_logged_in(): bool
     return !empty($_SESSION['user_id']);
 }
 
-function current_user(): array
+function tf_guest_user(): array
 {
-    static $cached = null;
-    if ($cached !== null) {
-        return $cached;
-    }
-    if (is_logged_in() && class_exists('User')) {
-        $row = User::find((int) $_SESSION['user_id']);
-        if ($row) {
-            $cached = User::present($row);
-            return $cached;
-        }
-        unset($_SESSION['user_id']);
-    }
-    $cached = [
+    return [
         'uid'          => 0,
         'id'           => '',
         'name'         => 'Guest',
@@ -93,24 +81,164 @@ function current_user(): array
         'currency'     => 'xaf',
         'status'       => 'active',
     ];
-    return $cached;
+}
+
+function tf_clear_user_cache(): void
+{
+    unset($GLOBALS['_tf_user']);
+}
+
+function current_user(): array
+{
+    if (array_key_exists('_tf_user', $GLOBALS) && is_array($GLOBALS['_tf_user'])) {
+        return $GLOBALS['_tf_user'];
+    }
+    if (is_logged_in() && class_exists('User')) {
+        $row = User::find((int) $_SESSION['user_id']);
+        if ($row) {
+            $GLOBALS['_tf_user'] = User::present($row);
+            return $GLOBALS['_tf_user'];
+        }
+        unset($_SESSION['user_id'], $_SESSION['auth_at'], $_SESSION['remember']);
+    }
+    $GLOBALS['_tf_user'] = tf_guest_user();
+    return $GLOBALS['_tf_user'];
+}
+
+function tf_request_fingerprint(): string
+{
+    return hash('sha256', (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+}
+
+function tf_session_cookie_options(int $expires = 0): array
+{
+    $opts = [
+        'expires'  => $expires,
+        'path'     => defined('TF_SESSION_PATH') ? TF_SESSION_PATH : '/',
+        'secure'   => defined('TF_SESSION_SECURE') ? TF_SESSION_SECURE : false,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+    $p = session_get_cookie_params();
+    if (!empty($p['domain'])) {
+        $opts['domain'] = $p['domain'];
+    }
+    return $opts;
+}
+
+function tf_issue_session_cookie(bool $remember): void
+{
+    if (headers_sent() || session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+    $ttl = $remember
+        ? (defined('TF_SESSION_REMEMBER') ? TF_SESSION_REMEMBER : 86400 * 30)
+        : 0;
+    $expires = $ttl > 0 ? time() + $ttl : 0;
+    setcookie(session_name(), session_id(), tf_session_cookie_options($expires));
+}
+
+function tf_expire_session_cookie(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+    setcookie(session_name(), '', tf_session_cookie_options(time() - 42000));
 }
 
 function login_user(array $row, bool $remember = false): void
 {
-    session_regenerate_id(true);
-    $_SESSION['user_id'] = (int) $row['id'];
-    if ($remember) {
-        $p = session_get_cookie_params();
-        setcookie(session_name(), session_id(), [
-            'expires'  => time() + 60 * 60 * 24 * 30,
-            'path'     => $p['path'] ?: '/',
-            'domain'   => $p['domain'] ?? '',
-            'secure'   => !empty($p['secure']),
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
+    $flash = $_SESSION['flash'] ?? null;
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
     }
+    $_SESSION = [];
+    $_SESSION['user_id']  = (int) $row['id'];
+    $_SESSION['auth_at']  = time();
+    $_SESSION['last_seen'] = time();
+    $_SESSION['sid_at']   = time();
+    $_SESSION['remember'] = $remember ? 1 : 0;
+    $_SESSION['ua_hash']  = tf_request_fingerprint();
+    $_SESSION['csrf']     = bin2hex(random_bytes(32));
+    if (is_array($flash)) {
+        $_SESSION['flash'] = $flash;
+    }
+    tf_clear_user_cache();
+    tf_issue_session_cookie($remember);
+}
+
+function logout_user(bool $fresh = true): void
+{
+    tf_clear_user_cache();
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION = [];
+        tf_expire_session_cookie();
+        session_destroy();
+    }
+    if (!$fresh) {
+        return;
+    }
+    if (session_status() === PHP_SESSION_NONE) {
+        session_name(defined('TF_SESSION_NAME') ? TF_SESSION_NAME : 'tf_sid');
+        session_start();
+    }
+    session_regenerate_id(true);
+    $_SESSION = [];
+    $_SESSION['sid_at'] = time();
+    $_SESSION['ua_hash'] = tf_request_fingerprint();
+    $_SESSION['last_seen'] = time();
+}
+
+function tf_session_guard(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $fp = tf_request_fingerprint();
+    if (!empty($_SESSION['ua_hash']) && !hash_equals((string) $_SESSION['ua_hash'], $fp)) {
+        logout_user(true);
+        return;
+    }
+    if (empty($_SESSION['ua_hash'])) {
+        $_SESSION['ua_hash'] = $fp;
+    }
+
+    $now = time();
+    if (empty($_SESSION['sid_at'])) {
+        $_SESSION['sid_at'] = $now;
+    }
+
+    if (!empty($_SESSION['user_id'])) {
+        $remember = !empty($_SESSION['remember']);
+        $idle = $remember
+            ? (defined('TF_SESSION_REMEMBER') ? TF_SESSION_REMEMBER : 86400 * 30)
+            : (defined('TF_SESSION_IDLE') ? TF_SESSION_IDLE : 7200);
+        $abs = $remember
+            ? (defined('TF_SESSION_REMEMBER') ? TF_SESSION_REMEMBER : 86400 * 30)
+            : (defined('TF_SESSION_ABSOLUTE') ? TF_SESSION_ABSOLUTE : 86400 * 7);
+        $last = (int) ($_SESSION['last_seen'] ?? $now);
+        $auth = (int) ($_SESSION['auth_at'] ?? $now);
+        if (($now - $last) > $idle || ($now - $auth) > $abs) {
+            logout_user(true);
+            flash_set('info', 'Your session ended. Please log in again.');
+            return;
+        }
+
+        $rotate = defined('TF_SESSION_ROTATE') ? TF_SESSION_ROTATE : 900;
+        if (($now - (int) $_SESSION['sid_at']) > $rotate) {
+            session_regenerate_id(true);
+            $_SESSION['sid_at'] = $now;
+            tf_issue_session_cookie($remember);
+        }
+
+        if (!headers_sent()) {
+            header('Cache-Control: private, no-store, no-cache, must-revalidate');
+            header('Pragma: no-cache');
+        }
+    }
+
+    $_SESSION['last_seen'] = $now;
 }
 
 function user_initials(?array $user = null): string
@@ -258,12 +386,14 @@ function login_throttle_clear(): void
 function require_login(): void
 {
     if (!is_logged_in()) {
-        flash_set('info', 'Please log in to open your workspace.');
+        if (empty($_SESSION['flash'])) {
+            flash_set('info', 'Please log in to open your workspace.');
+        }
         redirect('regform.php');
     }
     $user = current_user();
     if (($user['status'] ?? 'active') === 'suspended') {
-        unset($_SESSION['user_id']);
+        logout_user(true);
         flash_set('error', 'This account has been suspended. Call the farm.');
         redirect('regform.php');
     }

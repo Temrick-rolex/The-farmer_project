@@ -432,9 +432,7 @@ switch ($action) {
         } else {
             flash_set('success', "You're on the list! Fresh news, straight from the field.");
         }
-        $back = $_SERVER['HTTP_REFERER'] ?? url('index.php');
-        header('Location: ' . $back);
-        exit;
+        redirect_back('index.php');
     }
 
     default:

@@ -99,7 +99,7 @@ SQL goes through `Database::run / fetch / fetchAll` with **bound parameters**.
 | --- | --- | --- |
 | Templates | Real PHP | Subset renderer (`<?= ?>`, colon `if`/`foreach`) |
 | MySQL | Required for mutations | Seed arrays, no persistence |
-| Auth | `$_SESSION['user_id']` | Cookie `tf_session` JSON |
+| Auth | Server session `tf_sid` + `$_SESSION['user_id']` | HMAC cookie `tf_session` (preview only) |
 | Security headers / throttle | Yes | Not applied |
 
 Production path is PHP + MySQL. Node exists so this workspace can be previewed without a system PHP install.

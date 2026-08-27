@@ -117,7 +117,7 @@ Applied to `index.php`, `product.php`, `opportunity.php`, `regform.php` via `app
 | Actions | Theme toggle | Already in `main.js` |
 | Actions | Cart icon + count | Opens the shared cart drawer |
 | Actions | **Log in** + **Register** | Both go to `regform.php` |
-| Actions (session) | **Dashboard** | Replaces login/register when `$_SESSION['user']` exists |
+| Actions (session) | **Dashboard** | Replaces login/register when `$_SESSION['user_id']` exists |
 
 **Removed from the public bar:** Settings link, Profile user icon.
 

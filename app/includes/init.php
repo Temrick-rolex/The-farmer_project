@@ -24,6 +24,10 @@ if (function_exists('tf_security_headers')) {
     tf_security_headers();
 }
 
+if (function_exists('tf_session_guard')) {
+    tf_session_guard();
+}
+
 if (!TF_DB_OK && empty($_SESSION['db_warned'])) {
     $_SESSION['db_warned'] = 1;
     flash_set(

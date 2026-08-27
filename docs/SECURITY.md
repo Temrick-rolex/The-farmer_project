@@ -2,13 +2,32 @@
 
 This document is the threat model and the controls in the code. It is not a pentest report.
 
+## Sessions
+
+The live PHP app owns a real server-side session. The cookie is only an id.
+
+| Rule | How |
+| --- | --- |
+| Cookie name | `tf_sid` (not `PHPSESSID`) |
+| Cookie flags | `HttpOnly`, `SameSite=Lax`, `Secure` on HTTPS, host-only, path = `BASE_URL/` |
+| Transport | Cookies only (`use_only_cookies`, `use_trans_sid=0`, `use_strict_mode`) |
+| What is stored | `user_id` — never the password, never the full user row |
+| Login | Wipe session → `session_regenerate_id(true)` → new CSRF → issue cookie |
+| Logout | Empty session, expire cookie (same flags), destroy, start a blank session so a flash can show “signed out” |
+| Idle | 2 hours; **Remember me** slides to 30 days |
+| Absolute | 7 days; **Remember me** 30 days from login |
+| Rotation | New session id every 15 minutes while signed in |
+| Binding | SHA-256 of `User-Agent`; mismatch drops the session |
+| Cache | Signed-in pages send `Cache-Control: private, no-store` |
+| Deleted / unknown id | Auth keys dropped; guest view |
+| Suspended | Full logout, then an error flash |
+
+The Node preview cannot use PHP’s session store, so it keeps a compact `tf_session` cookie. That cookie is **HMAC-SHA256 signed** and has `exp`; unsigned or expired values are ignored. It is still a preview, not a production session store.
+
 ## AuthN / AuthZ
 
-- Session cookie: `HttpOnly`, `SameSite=Lax`, `Secure` when HTTPS, `use_strict_mode`, `use_only_cookies`.
-- `session_regenerate_id(true)` on login. Optional **Remember me** extends the cookie to 30 days.
 - Role is loaded from `users.role` only. Register allow-list: `customer`, `farmer`.
 - `require_login()` on every dashboard layout. `require_role()` on farmer/admin screens **and** matching POST actions.
-- Suspended accounts cannot keep a session.
 - Login throttle: 8 failures / 15 minutes per session.
 - Passwords: `password_hash(..., PASSWORD_DEFAULT, ['cost' => 12])` and `password_verify`. Never echoed, never stored plain.
 - Change-password requires the current secret and 8+ matching characters.

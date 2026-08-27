@@ -78,22 +78,33 @@ if (!TF_DEBUG) {
     error_reporting(E_ALL);
 }
 
+define('TF_SESSION_NAME', 'tf_sid');
+define('TF_SESSION_IDLE', 7200);           // 2 hours without Remember me
+define('TF_SESSION_ABSOLUTE', 86400 * 7);  // 7 days max without Remember me
+define('TF_SESSION_REMEMBER', 86400 * 30); // 30 days with Remember me
+define('TF_SESSION_ROTATE', 900);          // re-issue id every 15 minutes
+
 $tfSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443')
     || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 
 $tfCookiePath = BASE_URL === '' ? '/' : rtrim(BASE_URL, '/') . '/';
+define('TF_SESSION_SECURE', $tfSecure);
+define('TF_SESSION_PATH', $tfCookiePath);
 
 ini_set('session.use_strict_mode', '1');
 ini_set('session.use_only_cookies', '1');
+ini_set('session.use_trans_sid', '0');
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
 ini_set('session.cookie_secure', $tfSecure ? '1' : '0');
-ini_set('session.gc_maxlifetime', '7200');
+ini_set('session.gc_maxlifetime', (string) TF_SESSION_REMEMBER);
 ini_set('session.sid_length', '48');
 ini_set('session.sid_bits_per_character', '6');
+ini_set('session.lazy_write', '1');
 
 if (session_status() === PHP_SESSION_NONE) {
+    session_name(TF_SESSION_NAME);
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => $tfCookiePath,

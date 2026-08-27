@@ -10,6 +10,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { URL } = require('url');
 const querystring = require('querystring');
 
@@ -383,14 +384,66 @@ function parseCookies(header) {
   return out;
 }
 
+const SESSION_SECRET = process.env.TF_SESSION_SECRET || 'the-farmer-preview-hmac';
+const SESSION_IDLE = 7200;
+const SESSION_REMEMBER = 60 * 60 * 24 * 30;
+
+function b64url(input) {
+  const buf = Buffer.isBuffer(input) ? input : Buffer.from(String(input), 'utf8');
+  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function b64urlDecode(str) {
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  return Buffer.from(String(str).replace(/-/g, '+').replace(/_/g, '/') + pad, 'base64').toString('utf8');
+}
+
+function timingSafeEqualStr(a, b) {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
+function signSession(sess) {
+  const now = Math.floor(Date.now() / 1000);
+  const remember = !!(sess && sess.remember);
+  const payload = Object.assign({}, sess || {}, {
+    iat: (sess && sess.iat) || now,
+    exp: now + (remember ? SESSION_REMEMBER : SESSION_IDLE),
+  });
+  const body = b64url(JSON.stringify(payload));
+  const sig = b64url(crypto.createHmac('sha256', SESSION_SECRET).update(body).digest());
+  return body + '.' + sig;
+}
+
 function readSession(req) {
   const raw = parseCookies(req.headers.cookie).tf_session;
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch (err) { return {}; }
+  if (!raw || raw.indexOf('.') < 0) return {};
+  const i = raw.lastIndexOf('.');
+  const body = raw.slice(0, i);
+  const sig = raw.slice(i + 1);
+  const expect = b64url(crypto.createHmac('sha256', SESSION_SECRET).update(body).digest());
+  if (!timingSafeEqualStr(sig, expect)) return {};
+  try {
+    const json = JSON.parse(b64urlDecode(body));
+    const now = Math.floor(Date.now() / 1000);
+    if (json.exp && Number(json.exp) < now) return {};
+    return json;
+  } catch (err) {
+    return {};
+  }
 }
 
 function sessionCookie(sess) {
-  return 'tf_session=' + encodeURIComponent(JSON.stringify(sess)) + '; Path=/; HttpOnly; SameSite=Lax';
+  const remember = !!(sess && sess.remember);
+  const maxAge = remember ? SESSION_REMEMBER : SESSION_IDLE;
+  return 'tf_session=' + encodeURIComponent(signSession(sess || {}))
+    + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + maxAge;
+}
+
+function clearSessionCookie() {
+  return 'tf_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
 }
 
 function makeCtx(req, extra) {
@@ -710,6 +763,8 @@ function handleProcess(req, res, fields, session) {
   if (action === 'login') {
     const user = previewUserFromLogin(fields.logname);
     setUser(user);
+    session.remember = !!(fields.remember);
+    session.iat = Math.floor(Date.now() / 1000);
     res.writeHead(302, { Location: tf_role_home(user.role), 'Set-Cookie': sessionCookie(session) });
     res.end();
     return;
