@@ -38,6 +38,9 @@ class Message
 
     public static function markRead(int $userId): void
     {
+        if (!TF_DB_OK || $userId < 1) {
+            return;
+        }
         Database::run('UPDATE messages SET is_read = 1 WHERE recipient_id = ?', [$userId]);
     }
 }

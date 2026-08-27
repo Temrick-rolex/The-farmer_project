@@ -49,7 +49,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <input type="hidden" name="action" value="send_message">
         <div class="field">
             <label for="body">Message</label>
-            <input type="text" id="body" name="body" placeholder="Ask about an order, a tree, or a program…" required>
+            <input type="text" id="body" name="body" placeholder="Ask about an order, a tree, or a program…" required maxlength="2000">
         </div>
         <button class="btn btn-primary" type="submit">Send</button>
     </form>

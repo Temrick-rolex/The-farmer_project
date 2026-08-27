@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_role(['farmer', 'admin']);
 $tf_role = 'farmer';
 $tf_page = 'product-new';
 $tf_heading = 'Add a product';

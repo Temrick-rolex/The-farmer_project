@@ -11,3 +11,5 @@ When you can point Apache / nginx at a subfolder, move these web entry points in
 Then set `BASE_URL` from `app/config/config.php` (it already computes a root-relative path from `DOCUMENT_ROOT`).
 
 Keep `app/`, `database/` and `tools/` **outside** the document root. `app/.htaccess` already denies HTTP access if they stay web-visible.
+
+Full product docs: [docs/README.md](../docs/README.md).

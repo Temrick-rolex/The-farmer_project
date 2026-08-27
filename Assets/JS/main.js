@@ -8,6 +8,15 @@
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
 
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   /* ---------------- Toasts ---------------- */
   var TF = {
     toast: function (msg, type, ms) {
@@ -103,9 +112,9 @@
     box.innerHTML = ids.filter(function (id) { return CATALOG[id]; }).map(function (id) {
       var p = CATALOG[id];
       var q = cart[id];
-      return '<div class="ci" data-id="' + id + '">' +
-        '<img src="' + p.img + '" alt="' + p.name + '">' +
-        '<div><div class="ci-name">' + p.name + '</div>' +
+      return '<div class="ci" data-id="' + escHtml(id) + '">' +
+        '<img src="' + escHtml(p.img) + '" alt="' + escHtml(p.name) + '">' +
+        '<div><div class="ci-name">' + escHtml(p.name) + '</div>' +
         '<div class="ci-price">' + fmt(p.price) + ' / unit</div>' +
         '<div class="qty">' +
         '<button data-act="dec" aria-label="Decrease quantity"><i class="fa-solid fa-minus"></i></button>' +
@@ -221,6 +230,7 @@
         btn.disabled = true;
         fetch(window.TF_PROCESS || '/process.php', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF': window.TF_CSRF || ''
@@ -396,7 +406,7 @@
 
         if (name.value.trim().length < 2) { setInvalid(name, true, 'Please enter your full name'); ok = false; } else setInvalid(name, false);
         if (!validEmail(email.value.trim())) { setInvalid(email, true, 'Please enter a valid email address'); ok = false; } else setInvalid(email, false);
-        if (pw.value.length < 6) { setInvalid(pw, true, 'Password must be at least 6 characters'); ok = false; } else setInvalid(pw, false);
+        if (pw.value.length < 8) { setInvalid(pw, true, 'Password must be at least 8 characters'); ok = false; } else setInvalid(pw, false);
         if (cpw.value !== pw.value || !cpw.value) { setInvalid(cpw, true, 'Passwords do not match'); ok = false; } else setInvalid(cpw, false);
         if (!dob.value) { setInvalid(dob, true, 'Please select your date of birth'); ok = false; } else setInvalid(dob, false);
         if (tel.value.replace(/\D/g, '').length < 8) { setInvalid(tel, true, 'Please enter a valid phone number'); ok = false; } else setInvalid(tel, false);
@@ -446,6 +456,7 @@
           paint(rating);
           fetch(window.TF_PROCESS || '/process.php', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'X-CSRF': window.TF_CSRF || '' },
             body: JSON.stringify({ action: 'rate', csrf: window.TF_CSRF || '', stars: rating })
           }).then(function (r) { return r.json(); }).then(function (data) {
@@ -475,12 +486,9 @@
     var news = $('#newsletterForm');
     if (news) {
       news.addEventListener('submit', function (e) {
-        e.preventDefault();
         var em = $('#newsletterEmail');
-        if (validEmail(em.value.trim())) {
-          TF.toast("You're on the list! Fresh news, straight from the field.", 'success', 3200);
-          news.reset();
-        } else {
+        if (!validEmail(em.value.trim())) {
+          e.preventDefault();
           TF.toast('Please enter a valid email address', 'error');
         }
       });

@@ -76,7 +76,7 @@ class User
                 self::nextPublicId(),
                 $data['name'],
                 strtolower($data['email']),
-                password_hash($data['password'], PASSWORD_DEFAULT),
+                self::hashPassword($data['password']),
                 $data['phone'] ?? null,
                 $data['address'] ?? null,
                 $data['city'] ?? TF_CITY,
@@ -109,7 +109,7 @@ class User
     public static function updatePassword(int $id, string $plain): void
     {
         Database::run('UPDATE users SET password_hash = ? WHERE id = ?', [
-            password_hash($plain, PASSWORD_DEFAULT),
+            self::hashPassword($plain),
             $id,
         ]);
     }
@@ -155,5 +155,10 @@ class User
     public static function verifyPassword(array $row, string $plain): bool
     {
         return password_verify($plain, (string) $row['password_hash']);
+    }
+
+    public static function hashPassword(string $plain): string
+    {
+        return password_hash($plain, PASSWORD_DEFAULT, ['cost' => 12]);
     }
 }

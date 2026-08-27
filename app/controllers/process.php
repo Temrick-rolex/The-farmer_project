@@ -33,19 +33,22 @@ if (!csrf_verify()) {
     if ($isJson) {
         json_response(['ok' => false, 'error' => 'Invalid session. Refresh and retry.'], 419);
     }
-    $back = $_SERVER['HTTP_REFERER'] ?? url('index.php');
-    header('Location: ' . $back);
-    exit;
+    redirect_back('index.php');
 }
 
 $action = (string) ($_POST['action'] ?? '');
 
 switch ($action) {
     case 'login': {
+        if (login_throttle_blocked()) {
+            flash_set('error', 'Too many sign-in attempts. Wait 15 minutes and try again.');
+            redirect('regform.php');
+        }
         $login = trim((string) ($_POST['logname'] ?? ''));
         $pass = (string) ($_POST['logpasswd'] ?? '');
         $row = User::findByLogin($login);
         if (!$row || !User::verifyPassword($row, $pass)) {
+            login_throttle_hit();
             flash_set('error', 'Those details do not match an account.');
             redirect('regform.php');
         }
@@ -53,7 +56,8 @@ switch ($action) {
             flash_set('error', 'This account has been suspended. Call the farm.');
             redirect('regform.php');
         }
-        login_user($row);
+        login_throttle_clear();
+        login_user($row, !empty($_POST['remember']));
         $view = User::present($row);
         flash_set('success', 'Welcome back to The Farmer, ' . $view['first_name'] . '.');
         redirect(tf_role_home($view['role']));
@@ -68,9 +72,12 @@ switch ($action) {
         if (!in_array($role, ['customer', 'farmer'], true)) {
             $role = 'customer';
         }
+        $countries = ['cameroon', 'chad', 'niger', 'nigeria', 'ghana', 'sierra-leone'];
+        $genders = ['male', 'female', 'other'];
         $tel = preg_replace('/\D+/', '', (string) ($_POST['telnum'] ?? '')) ?? '';
         $addr = trim((string) ($_POST['adress'] ?? ''));
-        if (strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($pass) < 6 || $pass !== $confirm || strlen($tel) < 8 || strlen($addr) < 4) {
+        $minPass = defined('TF_PASSWORD_MIN') ? TF_PASSWORD_MIN : 8;
+        if (strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($pass) < $minPass || $pass !== $confirm || strlen($tel) < 8 || strlen($addr) < 4) {
             flash_set('error', 'Please check the highlighted fields and try again.');
             redirect('regform.php');
         }
@@ -79,18 +86,30 @@ switch ($action) {
             redirect('regform.php');
         }
         $countryKey = (string) ($_POST['country'] ?? 'cameroon');
+        if (!in_array($countryKey, $countries, true)) {
+            $countryKey = 'cameroon';
+        }
+        $genderKey = strtolower((string) ($_POST['gender'] ?? 'other'));
+        if (!in_array($genderKey, $genders, true)) {
+            $genderKey = 'other';
+        }
+        $codes = ['+237', '+236', '+235', '+234', '+233', '+232'];
+        $code = (string) ($_POST['countrycode'] ?? '+237');
+        if (!in_array($code, $codes, true)) {
+            $code = '+237';
+        }
         $country = ucwords(str_replace('-', ' ', $countryKey));
         $id = User::create([
             'name'     => $name,
             'email'    => $email,
             'password' => $pass,
-            'phone'    => trim(($_POST['countrycode'] ?? '') . ' ' . ($_POST['telnum'] ?? '')),
+            'phone'    => trim($code . ' ' . (string) ($_POST['telnum'] ?? '')),
             'address'  => $addr,
             'city'     => $addr,
             'country'  => $country,
             'role'     => $role,
             'payment'  => tf_payment_label((string) ($_POST['paymentmode'] ?? 'momo')),
-            'gender'   => ucfirst((string) ($_POST['gender'] ?? '')),
+            'gender'   => ucfirst($genderKey),
             'dob'      => (!empty($_POST['dob']) ? $_POST['dob'] : null),
         ]);
         $row = User::find($id);
@@ -131,13 +150,18 @@ switch ($action) {
             flash_set('error', 'That email is already used by another account.');
             redirect('dashboard/account/profile.php');
         }
+        $pay = trim((string) ($_POST['payment'] ?? $u['payment']));
+        $allowedPay = ['Cash', 'Mobile money', 'Visa', 'Bank card'];
+        if (!in_array($pay, $allowedPay, true)) {
+            $pay = $u['payment'];
+        }
         User::updateProfile($u['uid'], [
-            'name'    => $name,
+            'name'    => tf_clip($name, 120),
             'email'   => $email,
-            'phone'   => trim((string) ($_POST['phone'] ?? '')),
-            'address' => trim((string) ($_POST['address'] ?? '')),
-            'payment' => trim((string) ($_POST['payment'] ?? $u['payment'])),
-            'city'    => trim((string) ($_POST['city'] ?? $u['city'])),
+            'phone'   => tf_clip(trim((string) ($_POST['phone'] ?? '')), 32),
+            'address' => tf_clip(trim((string) ($_POST['address'] ?? '')), 255),
+            'payment' => $pay,
+            'city'    => tf_clip(trim((string) ($_POST['city'] ?? $u['city'])), 80),
         ]);
         flash_set('success', 'Profile saved.');
         redirect('dashboard/account/profile.php');
@@ -154,7 +178,8 @@ switch ($action) {
             flash_set('error', 'Current password is not correct.');
             redirect('dashboard/account/settings.php');
         }
-        if (strlen($next) < 8 || $next !== $again) {
+        $minPass = defined('TF_PASSWORD_MIN') ? TF_PASSWORD_MIN : 8;
+        if (strlen($next) < $minPass || $next !== $again) {
             flash_set('error', 'New password must be 8+ characters and match the confirmation.');
             redirect('dashboard/account/settings.php');
         }
@@ -215,12 +240,20 @@ switch ($action) {
             flash_set('error', 'Product not found.');
             redirect('dashboard/farmer/products.php');
         }
+        $cat = (string) ($_POST['category'] ?? $p['category']);
+        if (!in_array($cat, ['trees', 'fresh', 'juice', 'experience'], true)) {
+            $cat = $p['category'];
+        }
+        $price = (int) ($_POST['price_xaf'] ?? $p['price_xaf']);
+        if ($price < 100) {
+            $price = (int) $p['price_xaf'];
+        }
         Product::update($id, (int) $p['vendor_id'], [
-            'name'        => trim((string) ($_POST['name'] ?? $p['name'])),
-            'category'    => (string) ($_POST['category'] ?? $p['category']),
-            'description' => trim((string) ($_POST['description'] ?? $p['description'])),
-            'price_xaf'   => (int) ($_POST['price_xaf'] ?? $p['price_xaf']),
-            'stock'       => (int) ($_POST['stock'] ?? $p['stock']),
+            'name'        => tf_clip(trim((string) ($_POST['name'] ?? $p['name'])), 160),
+            'category'    => $cat,
+            'description' => tf_clip(trim((string) ($_POST['description'] ?? $p['description'])), 2000),
+            'price_xaf'   => $price,
+            'stock'       => max(0, (int) ($_POST['stock'] ?? $p['stock'])),
         ]);
         flash_set('success', 'Product updated.');
         redirect('dashboard/farmer/products.php');
@@ -230,7 +263,11 @@ switch ($action) {
         require_role(['farmer', 'admin']);
         $u = current_user();
         $id = (int) ($_POST['product_id'] ?? 0);
-        Product::delete($id, $u['role'] === 'admin' ? (int) (Product::find($id)['vendor_id'] ?? 0) : $u['uid']);
+        $existing = Product::find($id);
+        $vendorId = $u['role'] === 'admin' ? (int) ($existing['vendor_id'] ?? 0) : $u['uid'];
+        if ($existing) {
+            Product::delete($id, $vendorId);
+        }
         flash_set('info', 'Pending listing removed.');
         redirect('dashboard/farmer/products.php');
     }
@@ -287,17 +324,20 @@ switch ($action) {
             redirect('regform.php');
         }
         $u = current_user();
-        $items = $_POST['items'] ?? [];
-        if (!is_array($items)) {
-            $items = [];
-        }
+        $items = tf_clean_cart($_POST['items'] ?? []);
         try {
             $order = Order::createFromCart($u, $items);
-        } catch (Throwable $e) {
+        } catch (RuntimeException $e) {
             if ($isJson) {
                 json_response(['ok' => false, 'error' => $e->getMessage()], 422);
             }
             flash_set('error', $e->getMessage());
+            redirect('product.php');
+        } catch (Throwable $e) {
+            if ($isJson) {
+                json_response(['ok' => false, 'error' => 'Could not place the order. Try again.'], 500);
+            }
+            flash_set('error', 'Could not place the order. Try again.');
             redirect('product.php');
         }
         $adminId = tf_admin_id();
@@ -335,9 +375,22 @@ switch ($action) {
 
     case 'update_system': {
         require_role(['admin']);
-        foreach (['free_delivery_threshold', 'delivery_fee', 'free_delivery_city', 'support_phone', 'support_email'] as $key) {
-            if (isset($_POST[$key])) {
-                Setting::set($key, trim((string) $_POST[$key]));
+        if (isset($_POST['free_delivery_threshold'])) {
+            Setting::set('free_delivery_threshold', (string) max(0, (int) $_POST['free_delivery_threshold']));
+        }
+        if (isset($_POST['delivery_fee'])) {
+            Setting::set('delivery_fee', (string) max(0, (int) $_POST['delivery_fee']));
+        }
+        if (isset($_POST['free_delivery_city'])) {
+            Setting::set('free_delivery_city', tf_clip(trim((string) $_POST['free_delivery_city']), 80));
+        }
+        if (isset($_POST['support_phone'])) {
+            Setting::set('support_phone', tf_clip(trim((string) $_POST['support_phone']), 32));
+        }
+        if (isset($_POST['support_email'])) {
+            $mail = trim((string) $_POST['support_email']);
+            if (filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+                Setting::set('support_email', $mail);
             }
         }
         flash_set('success', 'System settings saved.');
@@ -351,11 +404,12 @@ switch ($action) {
             flash_set('error', 'Write a message first.');
             redirect('dashboard/user/messages.php');
         }
-        $to = (int) ($_POST['recipient_id'] ?? 6);
+        $to = tf_admin_id();
         if ($to < 1) {
-            $to = 6;
+            flash_set('error', 'Support is unavailable right now.');
+            redirect('dashboard/user/messages.php');
         }
-        Message::send(current_user()['uid'], $to, 'Support', $body);
+        Message::send(current_user()['uid'], $to, 'Support', tf_clip($body, 2000));
         flash_set('success', 'Message sent.');
         redirect('dashboard/user/messages.php');
     }

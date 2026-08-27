@@ -49,7 +49,7 @@ require TF_APP . '/includes/header.php';
                         <div class="field">
                             <label for="su-pass">Password</label>
                             <div class="pw-wrap">
-                                <input type="password" id="su-pass" name="passwd" placeholder="Min. 6 characters" autocomplete="new-password">
+                                <input type="password" id="su-pass" name="passwd" placeholder="Min. 8 characters" autocomplete="new-password" minlength="8" required>
                                 <button type="button" class="pw-toggle" data-for="su-pass" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
                             </div>
                             <span class="field-error"></span>
@@ -159,6 +159,6 @@ require TF_APP . '/includes/header.php';
     </div>
 </div>
 
-<script src="<?= e(asset('JS/main.js')) ?>"></script>
+<script src="<?= e(asset('JS/main.js')) ?>" nonce="<?= e(csp_nonce()) ?>"></script>
 </body>
 </html>

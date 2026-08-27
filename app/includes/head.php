@@ -20,14 +20,14 @@ $tf_dashboard = !empty($tf_dashboard);
     <link rel="stylesheet" href="<?= e(asset('CSS/dashboard.css')) ?>">
     <?php endif; ?>
     <link rel="shortcut icon" href="<?= e(asset('Image/RO.png')) ?>" type="image/png">
-    <script>
-      window.TF_BASE = <?= json_encode(BASE_URL) ?>;
-      window.TF_ASSET = <?= json_encode(ASSET_URL) ?>;
-      window.TF_CSRF = <?= json_encode(csrf_token()) ?>;
-      window.TF_LOGGED_IN = <?= json_encode(is_logged_in()) ?>;
-      window.TF_PROCESS = <?= json_encode(url('process.php')) ?>;
-      window.TF_CATALOG = <?= json_encode(Product::catalogForJs()) ?>;
+    <script nonce="<?= e(csp_nonce()) ?>">
+      window.TF_BASE = <?= tf_js(BASE_URL) ?>;
+      window.TF_ASSET = <?= tf_js(ASSET_URL) ?>;
+      window.TF_CSRF = <?= tf_js(csrf_token()) ?>;
+      window.TF_LOGGED_IN = <?= tf_js(is_logged_in()) ?>;
+      window.TF_PROCESS = <?= tf_js(url('process.php')) ?>;
+      window.TF_CATALOG = <?= tf_js(Product::catalogForJs()) ?>;
     </script>
-    <script>(function(){try{var t=localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+    <script nonce="<?= e(csp_nonce()) ?>">(function(){try{var t=localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
 </head>
 <body<?= $tf_body_class !== '' ? ' class="' . e($tf_body_class) . '"' : '' ?>>

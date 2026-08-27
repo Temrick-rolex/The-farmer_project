@@ -65,6 +65,41 @@ define('DB_USER', getenv('DB_USER') !== false && getenv('DB_USER') !== '' ? gete
 define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 define('DB_CHARSET', 'utf8mb4');
 
+define('TF_PASSWORD_MIN', 8);
+define('TF_DEBUG', getenv('APP_DEBUG') === '1');
+define('TF_CSP_NONCE', base64_encode(random_bytes(16)));
+
+if (!TF_DEBUG) {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
+}
+
+$tfSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443')
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+$tfCookiePath = BASE_URL === '' ? '/' : rtrim(BASE_URL, '/') . '/';
+
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', $tfSecure ? '1' : '0');
+ini_set('session.gc_maxlifetime', '7200');
+ini_set('session.sid_length', '48');
+ini_set('session.sid_bits_per_character', '6');
+
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => $tfCookiePath,
+        'secure'   => $tfSecure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }

@@ -23,11 +23,16 @@ class Database
 
         $dsn = "mysql:host={$host};port={$port};dbname={$name};charset={$charset}";
 
-        self::$pdo = new PDO($dsn, $user, $pass, [
+        $opts = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
-        ]);
+        ];
+        if (defined('PDO::MYSQL_ATTR_MULTI_STATEMENTS')) {
+            $opts[PDO::MYSQL_ATTR_MULTI_STATEMENTS] = false;
+        }
+
+        self::$pdo = new PDO($dsn, $user, $pass, $opts);
 
         return self::$pdo;
     }

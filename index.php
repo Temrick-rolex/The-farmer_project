@@ -161,9 +161,9 @@ require TF_APP . '/includes/header.php';
                 <p class="eyebrow">Our sponsors &amp; partners</p>
             </div>
             <div class="sponsors">
-                <a href="https://www.novadesign." target="_blank" rel="noopener"><img src="<?= e(asset('Image/logo-entreprise-2.png')) ?>" alt="Nova Collective Design" loading="lazy"></a>
-                <a href="https://www.Myfarmpicker." target="_blank" rel="noopener"><img src="<?= e(asset('Image/or.jpeg')) ?>" alt="My Farm Picker" loading="lazy"></a>
-                <a href="https://iaicameroun.com/" target="_blank" rel="noopener"><img src="<?= e(asset('Image/iai.webp')) ?>" alt="IAI Cameroon" loading="lazy"></a>
+                <a href="https://www.novadesign." target="_blank" rel="noopener noreferrer"><img src="<?= e(asset('Image/logo-entreprise-2.png')) ?>" alt="Nova Collective Design" loading="lazy"></a>
+                <a href="https://www.Myfarmpicker." target="_blank" rel="noopener noreferrer"><img src="<?= e(asset('Image/or.jpeg')) ?>" alt="My Farm Picker" loading="lazy"></a>
+                <a href="https://iaicameroun.com/" target="_blank" rel="noopener noreferrer"><img src="<?= e(asset('Image/iai.webp')) ?>" alt="IAI Cameroon" loading="lazy"></a>
             </div>
         </div>
     </section>

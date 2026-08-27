@@ -61,6 +61,6 @@
     </div>
 </footer>
 <?php require TF_APP . '/includes/cart.php'; ?>
-<script src="<?= e(asset('JS/main.js')) ?>"></script>
+<script src="<?= e(asset('JS/main.js')) ?>" nonce="<?= e(csp_nonce()) ?>"></script>
 </body>
 </html>

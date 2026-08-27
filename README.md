@@ -1,24 +1,44 @@
 # The Farmer
 
-Farm-direct citrus from Yaoundé, Cameroon — shop, partnerships, mentorship and jobs.
+Farm-direct citrus from **Yaoundé, Cameroon** — a shop, a grower network, and three role-based workspaces (customer, farmer, administrator).
 
-The storefront is a PHP + MySQL app with a shared header/footer and three role-based dashboards (customer, farmer, admin). Profile and Settings live **inside the dashboard**, not in the public navbar.
+The storefront sells mature fruit trees, fresh produce, juice and farm experiences in **integer XAF**. Profile and Settings live **inside the dashboard**, not in the public navbar.
 
-**Blueprint:** see [ARCHITECTURE.md](ARCHITECTURE.md).
+## Documentation
 
-## Database
+Start here, then read the set in `docs/` for the whole product:
 
-Import the full schema and demo seed:
+| Document | What it covers |
+| --- | --- |
+| [docs/README.md](docs/README.md) | Map of every markdown file |
+| [docs/OVERVIEW.md](docs/OVERVIEW.md) | Product, audience, roles, money |
+| [docs/FEATURES.md](docs/FEATURES.md) | Every public page and dashboard screen |
+| [docs/USER-GUIDE.md](docs/USER-GUIDE.md) | How to shop, sell, and administer |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Folders, includes, request flow |
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema, seed, import |
+| [docs/SECURITY.md](docs/SECURITY.md) | Auth, CSRF, XSS, headers, hardening |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Run locally, preview, conventions |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Original UI/UX blueprint (dashboards) |
+
+## Quick start
 
 ```bash
+cp .env.example .env          # edit DB_* if needed
 mysql -u root -p < database/the_farmer.sql
+php -S 0.0.0.0:8080
 ```
 
-Or use phpMyAdmin → Import → `database/the_farmer.sql`.
+Open `/index.php`. Log in at `/regform.php`.
 
-Copy `.env.example` to `.env` (XAMPP/WAMP defaults: database `the_farmer`, user `root`, empty password).
+If PHP is not installed, the Node preview renders templates (no MySQL persistence):
 
-Demo password for every seeded account: **`Farmer2026!`**
+```bash
+node tools/dev-server.js
+```
+
+## Demo accounts
+
+Password for every seeded account: **`Farmer2026!`**
 
 | Email | Role |
 | --- | --- |
@@ -30,18 +50,4 @@ Demo password for every seeded account: **`Farmer2026!`**
 | mballa@thefarmer.cm | Farmer / vendor |
 | ngono@thefarmer.cm | Administrator |
 
-Prices are **integer XAF**. Passwords are stored with `password_hash()` — never plaintext.
-
-## Run locally
-
-```bash
-php -S 0.0.0.0:8080
-```
-
-If PHP is not installed, the Node preview server renders templates only (no MySQL):
-
-```bash
-node tools/dev-server.js
-```
-
-Then open `/index.php` (shop) or log in at `/regform.php`. Forms POST to `process.php`. Asset paths use forward slashes via `asset()`.
+Passwords are stored with `password_hash()` — never plaintext. Role always comes from the **account**, never from a form picker at login.

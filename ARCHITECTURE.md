@@ -450,16 +450,16 @@ Rules going forward:
 </form>
 ```
 
-### 4.5 Next backend steps (when MySQL is ready)
+### 4.5 Backend (MySQL is wired)
 
-1. Import `database/schema.sql`.
-2. Fill `app/config/config.php` `DB_*` and add a small PDO wrapper.
-3. Implement `User`, `Product`, `Order`, `Opportunity` instead of `$TF_*` demo arrays.
-4. Add CSRF tokens on every POST and `password_hash` on register.
-5. Gate `/dashboard/` with a real session check (`role` must match the folder).
-6. Move the document root to `public/` (see `public/README.md`).
+1. Import `database/the_farmer.sql` (schema + seed).
+2. Copy `.env.example` → `.env` (`DB_*`). PDO lives in `app/config/database.php`.
+3. Models `User`, `Product`, `Order`, `Opportunity`, `Message`, `Setting` read the logged-in account.
+4. CSRF on every POST; `password_hash` / `password_verify` on register and login.
+5. `/dashboard/` is gated with `require_login()` / `require_role()`; role comes from the account.
+6. Optional later: move the document root to `public/` (see `public/README.md`).
 
-Until then, dashboards render Cameroonian demo data (Yaoundé, Bafoussam, Bamenda, Douala; XAF; Mobile money) so UI/UX can be judged without a database.
+Security headers, session cookies, login throttle and the rest of the hardening notes are in [docs/SECURITY.md](docs/SECURITY.md). Product behaviour is in [docs/](docs/README.md).
 
 ---
 
@@ -480,4 +480,4 @@ Open:
 - Farmer: `/dashboard/farmer/index.php`
 - Admin: `/dashboard/admin/index.php`
 
-On the login tab, pick **Customer / Farmer / Administrator** to land in the matching workspace (demo only).
+Log in with a seeded account (see README). The workspace follows the **role stored on that account**, not a form picker.

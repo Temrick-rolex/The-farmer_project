@@ -7,6 +7,9 @@ require_once TF_APP . '/helpers/functions.php';
 require_once TF_APP . '/config/database.php';
 
 spl_autoload_register(static function (string $class): void {
+    if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $class)) {
+        return;
+    }
     $file = TF_APP . '/models/' . $class . '.php';
     if (is_readable($file)) {
         require_once $file;
@@ -15,6 +18,10 @@ spl_autoload_register(static function (string $class): void {
 
 if (!defined('TF_DB_OK')) {
     define('TF_DB_OK', Database::connected());
+}
+
+if (function_exists('tf_security_headers')) {
+    tf_security_headers();
 }
 
 if (!TF_DB_OK && empty($_SESSION['db_warned'])) {

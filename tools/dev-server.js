@@ -140,7 +140,9 @@ const LIVE_APPS = [
 ];
 
 function asset(p) {
-  return ASSET_URL + '/' + String(p).replace(/\\/g, '/').replace(/^\/+/, '');
+  p = String(p).replace(/\\/g, '/').replace(/^\/+/, '');
+  if (!p || p.indexOf('..') !== -1 || /^[a-z][a-z0-9+.-]*:/i.test(p)) p = 'Image/profile.jpg';
+  return ASSET_URL + '/' + p;
 }
 
 function presentUser(row, extra) {
@@ -325,6 +327,8 @@ function isEmpty(v) {
 
 function csrf_token() { return 'preview'; }
 function csrf_field() { return '<input type="hidden" name="csrf" value="preview">'; }
+function csp_nonce() { return 'preview'; }
+function tf_js(v) { return JSON.stringify(v); }
 function product_category_label(cat) {
   return ({ trees: 'Trees', fresh: 'Fresh fruit', juice: 'Juice & cellar', experience: 'Experiences' }[cat] || cat);
 }
@@ -464,7 +468,7 @@ function evalExpr(expr, ctx) {
     'ctx', 'e', 'url', 'asset', 'money', 'tf_active', 'tf_role_label', 'tf_role_home',
     'phpDirname', 'isEmpty', 'array_slice', 'json_encode', 'strtoupper', 'substr', 'trim',
     'current_user', 'is_logged_in', 'flash_get', 'Number',
-    'csrf_token', 'csrf_field', 'stars_html', 'product_category_label', 'tf_status_label', 'tf_status_ok',
+    'csrf_token', 'csrf_field', 'csp_nonce', 'tf_js', 'stars_html', 'product_category_label', 'tf_status_label', 'tf_status_ok',
     'in_array', 'ucfirst', 'count', 'date', 'strtotime', 'number_format', 'setting', 'defined', 'class_exists',
     'Product', 'Order', 'User', 'Opportunity', 'Message', 'Setting',
     '"use strict"; return (' + js + ');'
@@ -478,7 +482,7 @@ function evalExpr(expr, ctx) {
     (s, a, b) => String(s).substr(a, b == null ? undefined : b),
     (s) => String(s).trim(),
     ctx.current_user, ctx.is_logged_in, ctx.flash_get, Number,
-    csrf_token, csrf_field, stars_html, product_category_label, tf_status_label, tf_status_ok,
+    csrf_token, csrf_field, csp_nonce, tf_js, stars_html, product_category_label, tf_status_label, tf_status_ok,
     in_array, ucfirst, count, phpDate, phpStrtotime, number_format, setting, defined, class_exists,
     Product, Order, User, Opportunity, Message, Setting
   );
