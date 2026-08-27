@@ -1,4 +1,5 @@
 <?php
+require_login();
 $tf_dashboard = true;
 $tf_body_class = 'dash-body';
 $tf_title = $tf_title ?? 'Dashboard · The Farmer';

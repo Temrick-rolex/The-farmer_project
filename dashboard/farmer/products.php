@@ -1,9 +1,12 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_role(['farmer', 'admin']);
+$user = current_user();
 $tf_role = 'farmer';
 $tf_page = 'products';
 $tf_heading = 'Inventory';
 $tf_title = 'Inventory · The Farmer';
+$products = Product::forVendor($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -25,15 +28,25 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product name</th><th>Stock</th><th>Price (XAF)</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($TF_FARMER_PRODUCTS as $p): ?>
+                <?php if (!$products): ?>
+                <tr><td colspan="5" class="muted">No products yet. Add one from the orchard.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($products as $p): ?>
                 <tr>
                     <td><strong><?= e($p['name']) ?></strong></td>
                     <td><?= e($p['stock']) ?></td>
-                    <td><?= e(money($p['price'])) ?></td>
-                    <td><span class="badge <?= $p['status'] === 'Live' ? '' : 'orange' ?>"><?= e($p['status']) ?></span></td>
+                    <td><?= e(money($p['price_xaf'])) ?></td>
+                    <td><span class="badge <?= tf_status_ok($p['status']) ? '' : 'orange' ?>"><?= e(tf_status_label($p['status'])) ?></span></td>
                     <td class="cell-actions">
-                        <button class="btn btn-outline btn-sm" type="button" data-demo="Edit form arrives with the product model (demo)"><i class="fa-solid fa-pen"></i> Edit</button>
-                        <button class="btn btn-danger btn-sm" type="button" data-confirm="Remove this product from the shop?" data-done="Product removed (demo)"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                        <a class="btn btn-outline btn-sm" href="<?= e(url('dashboard/farmer/product-edit.php?id=' . (int) $p['id'])) ?>"><i class="fa-solid fa-pen"></i> Edit</a>
+                        <?php if (in_array($p['status'], ['pending', 'rejected'], true)): ?>
+                        <form action="<?= e(url('process.php')) ?>" method="POST" style="display:inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="delete_product">
+                            <input type="hidden" name="product_id" value="<?= (int) $p['id'] ?>">
+                            <button class="btn btn-danger btn-sm" type="submit" data-confirm="Remove this listing?"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                        </form>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

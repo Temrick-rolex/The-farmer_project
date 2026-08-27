@@ -16,6 +16,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 
 <section class="panel form-card">
     <form action="<?= e(url('process.php')) ?>" method="POST">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="add_product">
         <div class="form-row">
             <div class="field">

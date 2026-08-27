@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_login();
 $user = current_user();
 $tf_role = $user['role'] ?? 'customer';
 $tf_page = 'profile';
@@ -26,6 +27,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <h3><i class="fa-solid fa-pen-clip"></i> Update your details</h3>
     </div>
     <form action="<?= e(url('process.php')) ?>" method="POST" style="margin-top:18px">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="update_profile">
         <div class="form-row">
             <div class="field">
@@ -52,9 +54,15 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 </select>
             </div>
         </div>
-        <div class="field">
-            <label for="address">Delivery address</label>
-            <input type="text" id="address" name="address" value="<?= e($user['address']) ?>">
+        <div class="form-row">
+            <div class="field">
+                <label for="address">Delivery address</label>
+                <input type="text" id="address" name="address" value="<?= e($user['address']) ?>">
+            </div>
+            <div class="field">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="<?= e($user['city']) ?>">
+            </div>
         </div>
         <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save profile</button>
     </form>

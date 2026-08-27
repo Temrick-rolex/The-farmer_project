@@ -1,10 +1,14 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
-$tf_role = 'customer';
+require_login();
+$user = current_user();
+$tf_role = $user['role'];
 $tf_page = 'overview';
 $tf_heading = 'Overview';
 $tf_title = 'Customer dashboard · The Farmer';
-$user = current_user();
+$orders = Order::forCustomer($user['uid']);
+$orderCount = Order::countForUser($user['uid']);
+$oppCount = Opportunity::countForUser($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -21,16 +25,16 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div class="feature-icon"><i class="fa-solid fa-bag-shopping"></i></div>
         <div>
             <div class="k">Total orders</div>
-            <div class="v">8</div>
-            <div class="hint">+2 this month</div>
+            <div class="v"><?= e($orderCount) ?></div>
+            <div class="hint">Billed in XAF</div>
         </div>
     </article>
     <article class="stat-card">
         <div class="feature-icon alt"><i class="fa-solid fa-handshake"></i></div>
         <div>
             <div class="k">Active opportunities</div>
-            <div class="v">2</div>
-            <div class="hint">1 accepted · 1 in review</div>
+            <div class="v"><?= e($oppCount) ?></div>
+            <div class="hint">Programs you follow</div>
         </div>
     </article>
     <article class="stat-card">
@@ -54,7 +58,10 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product</th><th>Date</th><th>Amount</th><th>Status</th></tr>
             </thead>
             <tbody>
-                <?php foreach (array_slice($TF_ORDERS, 0, 4) as $order): ?>
+                <?php if (!$orders): ?>
+                <tr><td colspan="4" class="muted">No orders yet. The shop is open.</td></tr>
+                <?php endif; ?>
+                <?php foreach (array_slice($orders, 0, 4) as $order): ?>
                 <tr>
                     <td>
                         <strong><?= e($order['item']) ?></strong><br>
@@ -62,7 +69,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     </td>
                     <td><?= e($order['date']) ?></td>
                     <td><?= e(money($order['amount'])) ?></td>
-                    <td><span class="badge <?= $order['tone'] === 'ok' ? '' : 'orange' ?>"><?= e($order['status']) ?></span></td>
+                    <td><span class="badge <?= tf_status_ok($order['status']) ? '' : 'orange' ?>"><?= e(tf_status_label($order['status'])) ?></span></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

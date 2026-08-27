@@ -13,6 +13,26 @@ define('TF_APP', TF_ROOT . '/app');
 define('TF_DASHBOARD', TF_ROOT . '/dashboard');
 define('TF_ASSETS_DIR', TF_ROOT . '/Assets');
 
+$tfEnvFile = TF_ROOT . '/.env';
+if (is_readable($tfEnvFile)) {
+    foreach (file($tfEnvFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $tfLine) {
+        $tfLine = trim($tfLine);
+        if ($tfLine === '' || $tfLine[0] === '#') {
+            continue;
+        }
+        if (strpos($tfLine, '=') === false) {
+            continue;
+        }
+        [$tfK, $tfV] = explode('=', $tfLine, 2);
+        $tfK = trim($tfK);
+        $tfV = trim($tfV, " \t\"'");
+        if ($tfK !== '' && getenv($tfK) === false) {
+            putenv($tfK . '=' . $tfV);
+            $_ENV[$tfK] = $tfV;
+        }
+    }
+}
+
 /**
  * Compute a root-relative base URL so asset paths work from any
  * nested page (dashboard/user/index.php, public pages, etc.).
@@ -38,11 +58,11 @@ define('TF_PHONE', '+237 605 048 910');
 define('TF_EMAIL', 'temrick4@gmail.com');
 define('TF_ADDRESS', 'Simbock / Mendong, Yaoundé — Cameroon');
 
-/* ---- Future MySQL connection (leave unused until the backend lands) ---- */
-define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'the_farmer');
-define('DB_USER', 'farmer');
-define('DB_PASS', '');
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
+define('DB_NAME', getenv('DB_NAME') ?: 'the_farmer');
+define('DB_USER', getenv('DB_USER') !== false && getenv('DB_USER') !== '' ? getenv('DB_USER') : 'root');
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 define('DB_CHARSET', 'utf8mb4');
 
 if (session_status() === PHP_SESSION_NONE) {

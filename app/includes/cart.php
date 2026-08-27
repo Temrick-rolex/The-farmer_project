@@ -12,11 +12,19 @@ $user = current_user();
         <button class="icon-btn" id="cartClose" aria-label="Close cart" type="button"><i class="fa-solid fa-xmark"></i></button>
     </header>
     <div class="cart-user">
+        <?php if (is_logged_in()): ?>
         <img src="<?= e(asset($user['avatar'])) ?>" alt="Profile picture of <?= e($user['name']) ?>">
         <div>
             <strong><?= e($user['name']) ?></strong>
             <span><?= e($user['city']) ?>, <?= e($user['country']) ?> · ID <?= e($user['id']) ?></span>
         </div>
+        <?php else: ?>
+        <img src="<?= e(asset('Image/profile.jpg')) ?>" alt="Guest">
+        <div>
+            <strong>Guest</strong>
+            <span>Log in at checkout to place an order</span>
+        </div>
+        <?php endif; ?>
     </div>
     <div class="cart-items" id="cartItems"></div>
     <div class="cart-empty" id="cartEmpty">

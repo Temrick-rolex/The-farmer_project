@@ -1,10 +1,15 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_role(['farmer', 'admin']);
+$user = current_user();
 $tf_role = 'farmer';
 $tf_page = 'overview';
 $tf_heading = 'Farm overview';
 $tf_title = 'Farmer dashboard · The Farmer';
-$user = current_user();
+$products = Product::forVendor($user['uid']);
+$orders = Order::forVendor($user['uid']);
+$sales = Order::salesForVendor($user['uid']);
+$pending = Order::pendingCountForVendor($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -21,7 +26,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div class="feature-icon alt"><i class="fa-solid fa-coins"></i></div>
         <div>
             <div class="k">Total sales</div>
-            <div class="v">1,245,000 XAF</div>
+            <div class="v"><?= e(money($sales)) ?></div>
             <div class="hint">This season</div>
         </div>
     </article>
@@ -29,16 +34,16 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div class="feature-icon"><i class="fa-solid fa-seedling"></i></div>
         <div>
             <div class="k">Products listed</div>
-            <div class="v">12</div>
-            <div class="hint">1 sold out</div>
+            <div class="v"><?= e(count($products)) ?></div>
+            <div class="hint">Awaiting review or live</div>
         </div>
     </article>
     <article class="stat-card">
         <div class="feature-icon alt"><i class="fa-solid fa-box-open"></i></div>
         <div>
             <div class="k">Pending orders</div>
-            <div class="v">5</div>
-            <div class="hint down">3 still to pack</div>
+            <div class="v"><?= e($pending) ?></div>
+            <div class="hint">To pack or deliver</div>
         </div>
     </article>
 </section>
@@ -63,12 +68,15 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Product</th><th>Stock</th><th>Price</th><th></th></tr>
                 </thead>
                 <tbody>
-                    <?php foreach (array_slice($TF_FARMER_PRODUCTS, 0, 4) as $p): ?>
+                    <?php if (!$products): ?>
+                    <tr><td colspan="4" class="muted">No listings yet.</td></tr>
+                    <?php endif; ?>
+                    <?php foreach (array_slice($products, 0, 4) as $p): ?>
                     <tr>
                         <td><strong><?= e($p['name']) ?></strong></td>
                         <td><?= e($p['stock']) ?></td>
-                        <td><?= e(money($p['price'])) ?></td>
-                        <td><span class="badge <?= $p['status'] === 'Live' ? '' : 'orange' ?>"><?= e($p['status']) ?></span></td>
+                        <td><?= e(money($p['price_xaf'])) ?></td>
+                        <td><span class="badge <?= tf_status_ok($p['status']) ? '' : 'orange' ?>"><?= e(tf_status_label($p['status'])) ?></span></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -87,13 +95,16 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Buyer</th><th>Status</th></tr>
                 </thead>
                 <tbody>
-                    <?php foreach (array_slice($TF_FARMER_ORDERS, 0, 4) as $o): ?>
+                    <?php if (!$orders): ?>
+                    <tr><td colspan="2" class="muted">No sales yet.</td></tr>
+                    <?php endif; ?>
+                    <?php foreach (array_slice($orders, 0, 4) as $o): ?>
                     <tr>
                         <td>
                             <strong><?= e($o['buyer']) ?></strong><br>
                             <span class="muted small"><?= e($o['item']) ?> · <?= e($o['city']) ?></span>
                         </td>
-                        <td><span class="badge orange"><?= e($o['status']) ?></span></td>
+                        <td><span class="badge <?= tf_status_ok($o['status']) ? '' : 'orange' ?>"><?= e(tf_status_label($o['status'])) ?></span></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

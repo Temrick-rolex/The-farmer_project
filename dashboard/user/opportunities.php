@@ -1,9 +1,12 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
-$tf_role = 'customer';
+require_login();
+$user = current_user();
+$tf_role = $user['role'];
 $tf_page = 'opportunities';
 $tf_heading = 'Saved opportunities';
 $tf_title = 'Saved opportunities · The Farmer';
+$saved = Opportunity::savedBy($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -16,12 +19,21 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 </section>
 
 <section class="quick-grid">
-    <?php foreach ($TF_SAVED_OPPORTUNITIES as $op): ?>
+    <?php if (!$saved): ?>
     <article class="quick-card">
-        <div class="feature-icon"><i class="fa-solid <?= e($op['icon']) ?>"></i></div>
+        <div class="feature-icon"><i class="fa-solid fa-bookmark"></i></div>
+        <div>
+            <h3>Nothing saved yet</h3>
+            <p>Open Opportunities and apply — we call within 48 hours.</p>
+        </div>
+    </article>
+    <?php endif; ?>
+    <?php foreach ($saved as $op): ?>
+    <article class="quick-card">
+        <div class="feature-icon"><i class="fa-solid <?= e($op['icon'] ?: 'fa-handshake') ?>"></i></div>
         <div>
             <h3><?= e($op['title']) ?></h3>
-            <p>Applied <?= e($op['applied']) ?> · <strong><?= e($op['status']) ?></strong></p>
+            <p>Applied <?= e(date('j M Y', strtotime($op['applied_at']))) ?> · <strong><?= e(tf_status_label($op['application_status'])) ?></strong></p>
         </div>
     </article>
     <?php endforeach; ?>

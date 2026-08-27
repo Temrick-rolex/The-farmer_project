@@ -3,6 +3,7 @@ require_once __DIR__ . '/app/includes/init.php';
 $tf_nav = 'home';
 $tf_title = 'The Farmer — Fresh citrus from Cameroon';
 $tf_description = 'The Farmer grows healthy citrus in Cameroon. Buy mature fruit trees, fresh produce and juice, or join our farmer programs.';
+$featured = Product::featured(4);
 require TF_APP . '/includes/head.php';
 require TF_APP . '/includes/header.php';
 ?>
@@ -79,68 +80,9 @@ require TF_APP . '/includes/header.php';
                 <p>A few of our bestsellers, picked this week and packed for your table.</p>
             </div>
             <div class="product-grid">
-                <article class="product-card" data-id="p1" data-name="Mature Orange Tree (Valencia)" data-cat="trees">
-                    <div class="pc-media">
-                        <img src="<?= e(asset('Image/product-images/88423a61-a94d-4d96-ba54-62aa4372992c_1500x1875.jpeg')) ?>" alt="Mature orange tree full of fruit">
-                        <span class="pc-tag">Trees</span>
-                        <span class="pc-badge">Bestseller</span>
-                    </div>
-                    <div class="pc-body">
-                        <h3 class="pc-name">Mature Orange Tree (Valencia)</h3>
-                        <div class="pc-rating"><span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span><span>5.0</span></div>
-                        <p class="pc-desc">4–5 year old tree, already bearing fruit. Potted, delivered and ready to plant in your yard.</p>
-                        <div class="pc-foot">
-                            <span class="pc-price">30,000 <small>XAF</small></span>
-                            <button class="btn btn-primary btn-sm" data-add="p1"><i class="fa-solid fa-cart-plus"></i> Add</button>
-                        </div>
-                    </div>
-                </article>
-                <article class="product-card" data-id="p3" data-name="Fresh Oranges — 5 kg basket" data-cat="fresh">
-                    <div class="pc-media">
-                        <img src="<?= e(asset('Image/product-images/Orange-Fruit-Pieces.jpg')) ?>" alt="Fresh oranges" loading="lazy">
-                        <span class="pc-tag">Fresh fruit</span>
-                    </div>
-                    <div class="pc-body">
-                        <h3 class="pc-name">Fresh Oranges — 5 kg basket</h3>
-                        <div class="pc-rating"><span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span><span>4.8</span></div>
-                        <p class="pc-desc">Hand-picked Valencia oranges, sweet and juicy. Delivered within 48 hours in Yaoundé.</p>
-                        <div class="pc-foot">
-                            <span class="pc-price">3,500 <small>XAF</small></span>
-                            <button class="btn btn-primary btn-sm" data-add="p3"><i class="fa-solid fa-cart-plus"></i> Add</button>
-                        </div>
-                    </div>
-                </article>
-                <article class="product-card" data-id="p6" data-name="Mixed Citrus Platter — 6 kg" data-cat="fresh">
-                    <div class="pc-media">
-                        <img src="<?= e(asset('Image/product-images/images-7.jpeg')) ?>" alt="Mixed citrus platter" loading="lazy">
-                        <span class="pc-tag">Fresh fruit</span>
-                        <span class="pc-badge">New</span>
-                    </div>
-                    <div class="pc-body">
-                        <h3 class="pc-name">Mixed Citrus Platter — 6 kg</h3>
-                        <div class="pc-rating"><span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span><span>4.9</span></div>
-                        <p class="pc-desc">Our bestsellers on one platter: oranges, tangerines, lemons, limes and grapefruit.</p>
-                        <div class="pc-foot">
-                            <span class="pc-price">6,000 <small>XAF</small></span>
-                            <button class="btn btn-primary btn-sm" data-add="p6"><i class="fa-solid fa-cart-plus"></i> Add</button>
-                        </div>
-                    </div>
-                </article>
-                <article class="product-card" data-id="p7" data-name="Fresh Orange Juice — 1 L" data-cat="juice">
-                    <div class="pc-media">
-                        <img src="<?= e(asset('Image/product-images/94253411-orange-juice-in-a-glass-bottle-and-orange-fruit-with-green-leaves-isolated-on-white-background.jpg')) ?>" alt="Fresh orange juice in a bottle" loading="lazy">
-                        <span class="pc-tag">Juice &amp; cellar</span>
-                    </div>
-                    <div class="pc-body">
-                        <h3 class="pc-name">Fresh Orange Juice — 1 L</h3>
-                        <div class="pc-rating"><span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></span><span>4.6</span></div>
-                        <p class="pc-desc">Cold-pressed the same morning. No sugar, no water, no preservatives.</p>
-                        <div class="pc-foot">
-                            <span class="pc-price">1,800 <small>XAF</small></span>
-                            <button class="btn btn-primary btn-sm" data-add="p7"><i class="fa-solid fa-cart-plus"></i> Add</button>
-                        </div>
-                    </div>
-                </article>
+                <?php foreach ($featured as $p): ?>
+                    <?php $p['_eager'] = true; require TF_APP . '/includes/product-card.php'; ?>
+                <?php endforeach; ?>
             </div>
             <p style="text-align:center;margin-top:38px">
                 <a class="btn btn-outline" href="<?= e(url('product.php')) ?>">View all products <i class="fa-solid fa-arrow-right"></i></a>

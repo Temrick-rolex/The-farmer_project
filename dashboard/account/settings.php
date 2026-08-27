@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_login();
 $user = current_user();
 $tf_role = $user['role'] ?? 'customer';
 $tf_page = 'settings';
@@ -18,30 +19,31 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 <section class="settings-grid">
     <div class="set-card">
         <h3><span class="feature-icon"><i class="fa-solid fa-language"></i></span> Preferences</h3>
-        <p>Saved on this device and applied automatically.</p>
+        <p>Saved on your account. Theme also applies on this device.</p>
         <form action="<?= e(url('process.php')) ?>" method="POST">
+            <?= csrf_field() ?>
             <input type="hidden" name="action" value="update_settings">
             <div class="field">
                 <label for="lang">Language</label>
                 <select name="language" id="lang" data-pref="tf-lang">
-                    <option value="english">English</option>
-                    <option value="french">Français</option>
-                    <option value="spanish">Español</option>
+                    <option value="english" <?= $user['language'] === 'english' ? 'selected' : '' ?>>English</option>
+                    <option value="french" <?= $user['language'] === 'french' ? 'selected' : '' ?>>Français</option>
+                    <option value="spanish" <?= $user['language'] === 'spanish' ? 'selected' : '' ?>>Español</option>
                 </select>
             </div>
             <div class="field">
                 <label for="themeSelect">Theme</label>
                 <select name="theme" id="themeSelect" data-pref="tf-theme">
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
+                    <option value="light" <?= $user['theme'] === 'light' ? 'selected' : '' ?>>Light</option>
+                    <option value="dark" <?= $user['theme'] === 'dark' ? 'selected' : '' ?>>Dark</option>
                 </select>
             </div>
             <div class="field">
                 <label for="paymod">Display currency</label>
                 <select name="currency" id="paymod" data-pref="tf-currency">
-                    <option value="xaf">XAF (frs)</option>
-                    <option value="usdt">USDT ($)</option>
-                    <option value="eur">Euro (€)</option>
+                    <option value="xaf" <?= $user['currency'] === 'xaf' ? 'selected' : '' ?>>XAF (frs)</option>
+                    <option value="usdt" <?= $user['currency'] === 'usdt' ? 'selected' : '' ?>>USDT ($)</option>
+                    <option value="eur" <?= $user['currency'] === 'eur' ? 'selected' : '' ?>>Euro (€)</option>
                 </select>
             </div>
             <button class="btn btn-primary btn-sm" type="submit">Save preferences</button>

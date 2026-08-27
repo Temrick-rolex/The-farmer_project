@@ -2,6 +2,7 @@
 Thumbs.db
 *.log
 .env
+database/*.sqlite
 vendor/
 node_modules/
 .idea/

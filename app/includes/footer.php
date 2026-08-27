@@ -41,6 +41,7 @@
                 <div class="contact-row"><i class="fa-solid fa-phone"></i><a href="tel:+237605048910"><?= e(TF_PHONE) ?></a></div>
                 <div class="contact-row"><i class="fa-solid fa-envelope"></i><a href="mailto:<?= e(TF_EMAIL) ?>"><?= e(TF_EMAIL) ?></a></div>
                 <form id="newsletterForm" class="field" style="margin-top:18px" action="<?= e(url('process.php')) ?>" method="POST">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="action" value="newsletter">
                     <label for="newsletterEmail">Get daily farm news</label>
                     <div style="display:flex;gap:8px">

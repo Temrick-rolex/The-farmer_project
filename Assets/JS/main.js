@@ -33,21 +33,7 @@
   window.TF = TF;
 
   /* ---------------- Catalog + cart ---------------- */
-  var ASSET = (window.TF_ASSET || '/Assets').replace(/\\/g, '/');
-  var CATALOG = {
-    p1:  { name: 'Mature Orange Tree (Valencia)', price: 30000, img: ASSET + '/Image/product-images/88423a61-a94d-4d96-ba54-62aa4372992c_1500x1875.jpeg' },
-    p2:  { name: 'Mature Tangerine Tree',         price: 25000, img: ASSET + '/Image/product-images/Tangerine-SpotlessFruitsIndia_1024x1024.png' },
-    p3:  { name: 'Fresh Oranges — 5 kg basket',   price: 3500,  img: ASSET + '/Image/product-images/Orange-Fruit-Pieces.jpg' },
-    p4:  { name: 'Fresh Lemons — 3 kg',           price: 2800,  img: ASSET + '/Image/product-images/27554428-lemon-fruits-with-leaves-isolated-on-white.jpg' },
-    p5:  { name: 'Fresh Limes — 3 kg',            price: 2500,  img: ASSET + '/Image/product-images/Lime-copy-scaled-1.jpg' },
-    p6:  { name: 'Mixed Citrus Platter — 6 kg',   price: 6000,  img: ASSET + '/Image/product-images/images-7.jpeg' },
-    p7:  { name: 'Fresh Orange Juice — 1 L',      price: 1800,  img: ASSET + '/Image/product-images/94253411-orange-juice-in-a-glass-bottle-and-orange-fruit-with-green-leaves-isolated-on-white-background.jpg' },
-    p8:  { name: 'Fresh Lemon Juice — 1 L',       price: 1800,  img: ASSET + '/Image/product-images/bottle-lemon-juice-fresh-lemons-25336807.jpg' },
-    p9:  { name: 'Sparkling Grapefruit — 750 ml', price: 8500,  img: ASSET + '/Image/product-images/cd2304634ba009da07e0e2f77650cedc0cf695de213a16fd6171548fed4629d4.jpg' },
-    p10: { name: 'Natural Orange Wine — 750 ml',  price: 9000,  img: ASSET + '/Image/product-images/images2.jpeg' },
-    p11: { name: 'Farm Visit & Self-Harvest',     price: 15000, img: ASSET + '/Image/farm6.jpg' },
-    p12: { name: 'Orchard Box — 1 month',         price: 12000, img: ASSET + '/Image/farm5.jpg' }
-  };
+  var CATALOG = window.TF_CATALOG || {};
 
   var cart = {};
   try { cart = JSON.parse(localStorage.getItem('tf-cart') || '{}') || {}; } catch (e) { cart = {}; }
@@ -75,7 +61,14 @@
   }
 
   function addToCart(id) {
-    if (!CATALOG[id]) return;
+    if (!CATALOG[id]) {
+      TF.toast('That product is not in the shop yet.', 'error');
+      return;
+    }
+    if (CATALOG[id].stock != null && cart[id] >= CATALOG[id].stock) {
+      TF.toast('Only ' + CATALOG[id].stock + ' left in stock', 'error');
+      return;
+    }
     cart[id] = (cart[id] || 0) + 1;
     saveCart();
     TF.toast(CATALOG[id].name + ' added to cart');
@@ -107,7 +100,7 @@
     }
     if (empty) empty.style.display = 'none';
     if (foot) foot.style.display = 'block';
-    box.innerHTML = ids.map(function (id) {
+    box.innerHTML = ids.filter(function (id) { return CATALOG[id]; }).map(function (id) {
       var p = CATALOG[id];
       var q = cart[id];
       return '<div class="ci" data-id="' + id + '">' +
@@ -219,10 +212,42 @@
       });
       $('#checkoutBtn').addEventListener('click', function () {
         if (cartCount() === 0) return;
-        cart = {};
-        saveCart();
-        TF.toast('Order placed! Our team will call you to confirm. (demo)', 'success', 4200);
-        setTimeout(closeCart, 900);
+        if (!window.TF_LOGGED_IN) {
+          TF.toast('Log in to place an order.', 'info');
+          setTimeout(function () { window.location.href = (window.TF_BASE || '') + '/regform.php'; }, 700);
+          return;
+        }
+        var btn = $('#checkoutBtn');
+        btn.disabled = true;
+        fetch(window.TF_PROCESS || '/process.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': window.TF_CSRF || ''
+          },
+          body: JSON.stringify({ action: 'checkout', csrf: window.TF_CSRF || '', items: cart })
+        }).then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+          .then(function (out) {
+            if (out.data && out.data.error === 'login') {
+              window.location.href = out.data.redirect || ((window.TF_BASE || '') + '/regform.php');
+              return;
+            }
+            if (!out.data || !out.data.ok) {
+              TF.toast((out.data && out.data.error) || 'Could not place the order.', 'error', 4200);
+              btn.disabled = false;
+              return;
+            }
+            cart = {};
+            saveCart();
+            TF.toast('Order ' + out.data.order + ' placed. We will call you to confirm.', 'success', 4200);
+            setTimeout(function () {
+              window.location.href = (window.TF_BASE || '') + '/dashboard/user/orders.php';
+            }, 900);
+          })
+          .catch(function () {
+            TF.toast('Network error. Try again.', 'error');
+            btn.disabled = false;
+          });
       });
       updateBadges();
       renderCart();
@@ -365,7 +390,6 @@
     var signup = $('#signupForm');
     if (signup) {
       signup.addEventListener('submit', function (e) {
-        e.preventDefault();
         var ok = true;
         var name = $('#su-name'), email = $('#su-email'), pw = $('#su-pass'), cpw = $('#su-conf'),
             dob = $('#su-dob'), tel = $('#su-tel'), addr = $('#su-addr');
@@ -378,10 +402,8 @@
         if (tel.value.replace(/\D/g, '').length < 8) { setInvalid(tel, true, 'Please enter a valid phone number'); ok = false; } else setInvalid(tel, false);
         if (addr.value.trim().length < 4) { setInvalid(addr, true, 'Please enter your delivery address'); ok = false; } else setInvalid(addr, false);
 
-        if (ok) {
-          TF.toast('Account created — welcome to The Farmer, ' + name.value.trim().split(' ')[0] + '! (demo)', 'success', 4200);
-          signup.reset();
-        } else {
+        if (!ok) {
+          e.preventDefault();
           TF.toast('Please fix the highlighted fields', 'error');
         }
       });
@@ -391,13 +413,13 @@
     var login = $('#loginForm');
     if (login) {
       login.addEventListener('submit', function (e) {
-        e.preventDefault();
         var user = $('#li-user'), pw = $('#li-pass');
         var ok = true;
         if (user.value.trim().length < 2) { setInvalid(user, true, 'Please enter your name or email'); ok = false; } else setInvalid(user, false);
         if (pw.value.length < 4) { setInvalid(pw, true, 'Please enter your password'); ok = false; } else setInvalid(pw, false);
-        if (ok) {
-          login.submit();
+        if (!ok) {
+          e.preventDefault();
+          TF.toast('Please enter your login details', 'error');
         }
       });
     }
@@ -422,7 +444,13 @@
         b.addEventListener('click', function () {
           rating = i + 1;
           paint(rating);
-          TF.toast('Thanks for rating us ' + rating + '/5!', 'success', 2600);
+          fetch(window.TF_PROCESS || '/process.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF': window.TF_CSRF || '' },
+            body: JSON.stringify({ action: 'rate', csrf: window.TF_CSRF || '', stars: rating })
+          }).then(function (r) { return r.json(); }).then(function (data) {
+            TF.toast(data && data.ok ? ('Thanks for rating us ' + rating + '/5!') : 'Could not save rating.', data && data.ok ? 'success' : 'error', 2600);
+          }).catch(function () { TF.toast('Thanks for rating us ' + rating + '/5!', 'success', 2600); });
         });
       });
       rate.addEventListener('mouseleave', function () { paint(rating); });
@@ -431,12 +459,7 @@
     /* ---------- Confirm actions ---------- */
     $$('[data-confirm]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (confirm(btn.getAttribute('data-confirm'))) {
-          var msg = btn.getAttribute('data-done');
-          TF.toast(msg || 'Done (demo)', 'info', 2600);
-          if (btn.id === 'logoutBtn') setTimeout(function () { window.location.href = 'index.php'; }, 700);
-        }
+        if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault();
       });
     });
 

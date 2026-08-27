@@ -51,6 +51,7 @@ $home = tf_role_home($tf_role);
     <div class="dash-sidebar-foot">
         <a class="dash-store-link" href="<?= e(url('index.php')) ?>"><i class="fa-solid fa-store"></i> Back to shop</a>
         <form action="<?= e(url('process.php')) ?>" method="POST">
+            <?= csrf_field() ?>
             <input type="hidden" name="action" value="logout">
             <button class="btn btn-danger btn-block" type="submit"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>
         </form>

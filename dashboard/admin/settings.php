@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_role(['admin']);
 $tf_role = 'admin';
 $tf_page = 'settings';
 $tf_heading = 'System settings';
@@ -18,20 +19,42 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 <section class="settings-grid">
     <article class="set-card">
         <h3><span class="feature-icon"><i class="fa-solid fa-coins"></i></span> Commerce</h3>
-        <p>Storefront settlement currency is XAF. Display conversion is optional.</p>
-        <div class="field">
-            <label>Default currency</label>
-            <input type="text" value="XAF (CFA franc)" readonly>
-        </div>
-        <div class="field">
-            <label>Free delivery threshold</label>
-            <input type="text" value="20,000 XAF · Yaoundé" readonly>
-        </div>
+        <p>Storefront settlement currency is XAF. Thresholds are stored as whole francs.</p>
+        <form action="<?= e(url('process.php')) ?>" method="POST">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="update_system">
+            <div class="field">
+                <label for="free_delivery_threshold">Free delivery threshold (XAF)</label>
+                <input type="number" id="free_delivery_threshold" name="free_delivery_threshold" min="0" step="100" value="<?= e(setting('free_delivery_threshold', '20000')) ?>">
+            </div>
+            <div class="field">
+                <label for="delivery_fee">Delivery fee (XAF)</label>
+                <input type="number" id="delivery_fee" name="delivery_fee" min="0" step="100" value="<?= e(setting('delivery_fee', '1000')) ?>">
+            </div>
+            <div class="field">
+                <label for="free_delivery_city">Free-delivery city</label>
+                <input type="text" id="free_delivery_city" name="free_delivery_city" value="<?= e(setting('free_delivery_city', 'Yaoundé')) ?>">
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit">Save commerce</button>
+        </form>
     </article>
     <article class="set-card">
-        <h3><span class="feature-icon alt"><i class="fa-solid fa-shield-halved"></i></span> Safety</h3>
-        <p>Passwords are hashed. Never display or log plaintext credentials.</p>
-        <ul class="feature-list">
+        <h3><span class="feature-icon alt"><i class="fa-solid fa-headset"></i></span> Support</h3>
+        <p>Shown on the public site and in order messages.</p>
+        <form action="<?= e(url('process.php')) ?>" method="POST">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="update_system">
+            <div class="field">
+                <label for="support_phone">Phone</label>
+                <input type="text" id="support_phone" name="support_phone" value="<?= e(setting('support_phone', TF_PHONE)) ?>">
+            </div>
+            <div class="field">
+                <label for="support_email">Email</label>
+                <input type="email" id="support_email" name="support_email" value="<?= e(setting('support_email', TF_EMAIL)) ?>">
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit">Save support</button>
+        </form>
+        <ul class="feature-list" style="margin-top:18px">
             <li><i class="fa-solid fa-circle-check"></i> password_hash() on register</li>
             <li><i class="fa-solid fa-circle-check"></i> Prepared statements for MySQL</li>
             <li><i class="fa-solid fa-circle-check"></i> CSRF tokens on every POST</li>

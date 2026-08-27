@@ -27,3 +27,4 @@ $tf_logged = is_logged_in();
         </div>
     </div>
 </header>
+<?php require TF_APP . '/includes/flash-banner.php'; ?>

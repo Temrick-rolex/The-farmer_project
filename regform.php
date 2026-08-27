@@ -32,6 +32,7 @@ require TF_APP . '/includes/header.php';
             </div>
 
             <form id="signupForm" action="<?= e(url('process.php')) ?>" method="POST">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="register">
                 <div id="signupPanel" class="form-panel active">
                     <div class="field">
@@ -132,6 +133,7 @@ require TF_APP . '/includes/header.php';
             </form>
 
             <form id="loginForm" action="<?= e(url('process.php')) ?>" method="POST">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="login">
                 <div id="loginPanel" class="form-panel">
                     <div class="field">
@@ -147,14 +149,7 @@ require TF_APP . '/includes/header.php';
                         </div>
                         <span class="field-error"></span>
                     </div>
-                    <div class="field">
-                        <label for="li-role">Enter dashboard as</label>
-                        <select id="li-role" name="role">
-                            <option value="customer">Customer</option>
-                            <option value="farmer">Farmer / vendor</option>
-                            <option value="admin">Administrator</option>
-                        </select>
-                    </div>
+                    <p class="muted small" style="margin:-6px 0 16px">Your workspace opens from the role saved on your account. Demo password: <strong>Farmer2026!</strong></p>
                     <label class="remember"><input type="checkbox" name="remember" id="check"> Remember me</label>
                     <button type="submit" class="btn btn-accent btn-block btn-lg">Log in</button>
                     <p class="auth-foot">No account yet? <button type="button" class="tab-link" data-panel="signupPanel">Create one</button></p>

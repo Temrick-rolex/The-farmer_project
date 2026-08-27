@@ -3,6 +3,7 @@ require_once __DIR__ . '/app/includes/init.php';
 $tf_nav = 'opportunity';
 $tf_title = 'Opportunities · The Farmer';
 $tf_description = 'Partnership, mentorship, jobs and community programs from The Farmer in Cameroon.';
+$opps = Opportunity::allLive();
 require TF_APP . '/includes/head.php';
 require TF_APP . '/includes/header.php';
 ?>
@@ -19,42 +20,23 @@ require TF_APP . '/includes/header.php';
     <section class="section">
         <div class="container">
             <div class="oppo-grid">
+                <?php foreach ($opps as $op): ?>
                 <article class="oppo-card">
-                    <div class="feature-icon"><i class="fa-solid fa-handshake"></i></div>
-                    <h3>Partnership Program</h3>
-                    <p>Become an official The Farmer partner: sell on our shelves, buy our trees at partner prices and co-market the harvest across Cameroon and Central Africa.</p>
-                    <a class="card-link" href="<?= e(url('regform.php')) ?>">Apply as partner <i class="fa-solid fa-arrow-right"></i></a>
+                    <div class="feature-icon<?= in_array($op['type'], ['mentorship', 'giveaway', 'sale'], true) ? ' alt' : '' ?>"><i class="fa-solid <?= e($op['icon'] ? $op['icon'] : 'fa-handshake') ?>"></i></div>
+                    <h3><?= e($op['title']) ?></h3>
+                    <p><?= e($op['body']) ?></p>
+                    <?php if (is_logged_in()): ?>
+                    <form action="<?= e(url('process.php')) ?>" method="POST">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="action" value="apply_opportunity">
+                        <input type="hidden" name="opportunity_id" value="<?= (int) $op['id'] ?>">
+                        <button class="card-link" type="submit"><?= e($op['cta_label'] ? $op['cta_label'] : 'Apply') ?> <i class="fa-solid fa-arrow-right"></i></button>
+                    </form>
+                    <?php else: ?>
+                    <a class="card-link" href="<?= e(url('regform.php')) ?>"><?= e($op['cta_label'] ? $op['cta_label'] : 'Apply') ?> <i class="fa-solid fa-arrow-right"></i></a>
+                    <?php endif; ?>
                 </article>
-                <article class="oppo-card">
-                    <div class="feature-icon alt"><i class="fa-solid fa-hands-holding-child"></i></div>
-                    <h3>Mentorship Program</h3>
-                    <p>Learn from our best tutors — soil preparation, irrigation, citrus care and how to turn a plot of land into a real, profitable business.</p>
-                    <a class="card-link" href="<?= e(url('regform.php')) ?>">Find a mentor <i class="fa-solid fa-arrow-right"></i></a>
-                </article>
-                <article class="oppo-card">
-                    <div class="feature-icon"><i class="fa-solid fa-briefcase"></i></div>
-                    <h3>Get Employed</h3>
-                    <p>Well-paid seasonal and permanent roles on our farm and with our partner companies — from nursery care and orchard work to delivery driving.</p>
-                    <a class="card-link" href="<?= e(url('regform.php')) ?>">See open roles <i class="fa-solid fa-arrow-right"></i></a>
-                </article>
-                <article class="oppo-card">
-                    <div class="feature-icon alt"><i class="fa-solid fa-newspaper"></i></div>
-                    <h3>The Farmer News</h3>
-                    <p>Daily updates straight from the field: harvest news, weather, market prices and new opportunities as they happen.</p>
-                    <button class="card-link" type="button" data-demo="The Farmer News drops here daily — coming soon (demo)">Read the latest <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
-                <article class="oppo-card">
-                    <div class="feature-icon"><i class="fa-solid fa-gift"></i></div>
-                    <h3>Gift &amp; Giveaway</h3>
-                    <p>Join our G&amp;GA program: monthly giveaways of free trees, fruit baskets and harvest tours for the community. Awesome prizes, easy entry.</p>
-                    <a class="card-link" href="<?= e(url('regform.php')) ?>">Join the next draw <i class="fa-solid fa-arrow-right"></i></a>
-                </article>
-                <article class="oppo-card">
-                    <div class="feature-icon alt"><i class="fa-solid fa-bolt"></i></div>
-                    <h3>Big Sales Show</h3>
-                    <p>Our BSS events: the whole harvest at the best prices of the season — 48 hours only, once a quarter, in Yaoundé.</p>
-                    <button class="card-link" type="button" data-demo="Big Sales Show dates are announced in The Farmer News (demo)">Get the date <i class="fa-solid fa-arrow-right"></i></button>
-                </article>
+                <?php endforeach; ?>
                 <article class="oppo-card soon">
                     <div class="feature-icon"><i class="fa-solid fa-star"></i></div>
                     <h3>Coming soon…</h3>

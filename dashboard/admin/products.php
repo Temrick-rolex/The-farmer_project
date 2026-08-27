@@ -1,9 +1,11 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
+require_role(['admin']);
 $tf_role = 'admin';
 $tf_page = 'products';
 $tf_heading = 'Product approval';
 $tf_title = 'Product approval · The Farmer';
+$queue = Product::pendingApproval();
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -24,15 +26,28 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product</th><th>Vendor</th><th>Price</th><th>Submitted</th><th>Actions</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($TF_APPROVAL_QUEUE as $row): ?>
+                <?php if (!$queue): ?>
+                <tr><td colspan="5" class="muted">Nothing waiting. New listings land here.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($queue as $row): ?>
                 <tr>
-                    <td><strong><?= e($row['product']) ?></strong></td>
-                    <td><?= e($row['vendor']) ?></td>
-                    <td><?= e(money($row['price'])) ?></td>
-                    <td><?= e($row['submitted']) ?></td>
+                    <td><strong><?= e($row['name']) ?></strong></td>
+                    <td><?= e($row['vendor_name']) ?></td>
+                    <td><?= e(money($row['price_xaf'])) ?></td>
+                    <td><?= e(date('j M Y', strtotime($row['created_at']))) ?></td>
                     <td class="cell-actions">
-                        <button class="btn btn-primary btn-sm" type="button" data-demo="Approved (demo) — will write to products.status"><i class="fa-solid fa-check"></i> Approve</button>
-                        <button class="btn btn-danger btn-sm" type="button" data-confirm="Reject this listing?" data-done="Rejected (demo)"><i class="fa-solid fa-xmark"></i> Reject</button>
+                        <form action="<?= e(url('process.php')) ?>" method="POST" style="display:inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="approve_product">
+                            <input type="hidden" name="product_id" value="<?= (int) $row['id'] ?>">
+                            <button class="btn btn-primary btn-sm" type="submit"><i class="fa-solid fa-check"></i> Approve</button>
+                        </form>
+                        <form action="<?= e(url('process.php')) ?>" method="POST" style="display:inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="reject_product">
+                            <input type="hidden" name="product_id" value="<?= (int) $row['id'] ?>">
+                            <button class="btn btn-danger btn-sm" type="submit" data-confirm="Reject this listing?"><i class="fa-solid fa-xmark"></i> Reject</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -1,16 +1,19 @@
 <?php
 require_once dirname(__DIR__, 2) . '/app/includes/init.php';
-$tf_role = 'customer';
+require_login();
+$user = current_user();
+$tf_role = $user['role'];
 $tf_page = 'orders';
 $tf_heading = 'My orders';
 $tf_title = 'My orders · The Farmer';
+$orders = Order::forCustomer($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
 <section class="dash-welcome">
     <div>
         <h2>Order history</h2>
-        <p>Every basket, tree and farm visit billed in XAF. Delivery in Yaoundé is free over 20,000 XAF.</p>
+        <p>Every basket, tree and farm visit billed in XAF. Delivery in Yaoundé is free over <?= e(number_format((int) setting('free_delivery_threshold', '20000'), 0, '.', ',')) ?> XAF.</p>
     </div>
 </section>
 
@@ -24,13 +27,16 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Order</th><th>Product</th><th>Date</th><th>Amount</th><th>Status</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($TF_ORDERS as $order): ?>
+                <?php if (!$orders): ?>
+                <tr><td colspan="5" class="muted">No orders yet.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($orders as $order): ?>
                 <tr>
                     <td><strong><?= e($order['id']) ?></strong></td>
                     <td><?= e($order['item']) ?></td>
                     <td><?= e($order['date']) ?></td>
                     <td><?= e(money($order['amount'])) ?></td>
-                    <td><span class="badge <?= $order['tone'] === 'ok' ? '' : 'orange' ?>"><?= e($order['status']) ?></span></td>
+                    <td><span class="badge <?= tf_status_ok($order['status']) ? '' : 'orange' ?>"><?= e(tf_status_label($order['status'])) ?></span></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
