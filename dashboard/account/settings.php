@@ -54,6 +54,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <h3><span class="feature-icon alt"><i class="fa-solid fa-key"></i></span> Change password</h3>
         <p>We never display your current password. Use at least 8 characters.</p>
         <form action="<?= e(url('process.php')) ?>" method="POST">
+            <?= csrf_field() ?>
             <input type="hidden" name="action" value="change_password">
             <div class="field">
                 <label for="current_password">Current password</label>

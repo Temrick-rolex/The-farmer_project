@@ -8,6 +8,7 @@ $tf_heading = 'Overview';
 $tf_title = 'Customer dashboard · The Farmer';
 $orders = Order::forCustomer($user['uid']);
 $orderCount = Order::countForUser($user['uid']);
+$monthCount = Order::countThisMonth($user['uid']);
 $oppCount = Opportunity::countForUser($user['uid']);
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
@@ -26,7 +27,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div>
             <div class="k">Total orders</div>
             <div class="v"><?= e($orderCount) ?></div>
-            <div class="hint">Billed in XAF</div>
+            <div class="hint"><?= e($monthCount) ?> this month</div>
         </div>
     </article>
     <article class="stat-card">
@@ -58,7 +59,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product</th><th>Date</th><th>Amount</th><th>Status</th></tr>
             </thead>
             <tbody>
-                <?php if (!$orders): ?>
+                <?php if (empty($orders)): ?>
                 <tr><td colspan="4" class="muted">No orders yet. The shop is open.</td></tr>
                 <?php endif; ?>
                 <?php foreach (array_slice($orders, 0, 4) as $order): ?>

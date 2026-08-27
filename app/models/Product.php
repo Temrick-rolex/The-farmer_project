@@ -136,7 +136,22 @@ class Product
 
     public static function countForVendor(int $vendorId): int
     {
+        if (!TF_DB_OK) {
+            return 0;
+        }
         $row = Database::fetch('SELECT COUNT(*) AS c FROM products WHERE vendor_id = ?', [$vendorId]);
+        return (int) ($row['c'] ?? 0);
+    }
+
+    public static function countStatus(int $vendorId, string $status): int
+    {
+        if (!TF_DB_OK) {
+            return 0;
+        }
+        $row = Database::fetch(
+            'SELECT COUNT(*) AS c FROM products WHERE vendor_id = ? AND status = ?',
+            [$vendorId, $status]
+        );
         return (int) ($row['c'] ?? 0);
     }
 }

@@ -28,7 +28,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product name</th><th>Stock</th><th>Price (XAF)</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
-                <?php if (!$products): ?>
+                <?php if (empty($products)): ?>
                 <tr><td colspan="5" class="muted">No products yet. Add one from the orchard.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($products as $p): ?>

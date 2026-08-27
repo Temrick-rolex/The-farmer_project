@@ -311,6 +311,22 @@
 
 .form-card { padding: 22px 26px 28px; }
 
+[hidden] { display: none !important; }
+
+.profile-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.profile-form.is-locked input,
+.profile-form.is-locked select {
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: default;
+  box-shadow: none;
+}
+.profile-form.is-locked input:focus,
+.profile-form.is-locked select:focus {
+  border-color: var(--line);
+  box-shadow: none;
+}
+
 /* ---------- Mobile ---------- */
 .dash-scrim {
   display: none;

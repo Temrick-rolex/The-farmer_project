@@ -26,7 +26,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Product</th><th>Vendor</th><th>Price</th><th>Submitted</th><th>Actions</th></tr>
             </thead>
             <tbody>
-                <?php if (!$queue): ?>
+                <?php if (empty($queue)): ?>
                 <tr><td colspan="5" class="muted">Nothing waiting. New listings land here.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($queue as $row): ?>

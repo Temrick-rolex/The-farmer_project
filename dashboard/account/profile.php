@@ -24,29 +24,29 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 
 <section class="panel form-card">
     <div class="panel-head" style="padding-left:0;padding-right:0">
-        <h3><i class="fa-solid fa-pen-clip"></i> Update your details</h3>
+        <h3><i class="fa-solid fa-id-card"></i> Your details</h3>
     </div>
-    <form action="<?= e(url('process.php')) ?>" method="POST" style="margin-top:18px">
+    <form id="profileForm" class="profile-form is-locked" action="<?= e(url('process.php')) ?>" method="POST" style="margin-top:18px">
         <?= csrf_field() ?>
         <input type="hidden" name="action" value="update_profile">
         <div class="form-row">
             <div class="field">
                 <label for="name">Full name</label>
-                <input type="text" id="name" name="name" value="<?= e($user['name']) ?>" required>
+                <input type="text" id="name" name="name" value="<?= e($user['name']) ?>" required readonly>
             </div>
             <div class="field">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="<?= e($user['email']) ?>" required>
+                <input type="email" id="email" name="email" value="<?= e($user['email']) ?>" required readonly>
             </div>
         </div>
         <div class="form-row">
             <div class="field">
                 <label for="phone">Phone</label>
-                <input type="tel" id="phone" name="phone" value="<?= e($user['phone']) ?>">
+                <input type="tel" id="phone" name="phone" value="<?= e($user['phone']) ?>" readonly>
             </div>
             <div class="field">
                 <label for="payment">Payment method</label>
-                <select id="payment" name="payment">
+                <select id="payment" name="payment" disabled>
                     <option value="Cash" <?= $user['payment'] === 'Cash' ? 'selected' : '' ?>>Cash</option>
                     <option value="Mobile money" <?= $user['payment'] === 'Mobile money' || $user['payment'] === 'momo' ? 'selected' : '' ?>>Mobile money</option>
                     <option value="Visa" <?= $user['payment'] === 'Visa' ? 'selected' : '' ?>>Visa</option>
@@ -57,14 +57,18 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div class="form-row">
             <div class="field">
                 <label for="address">Delivery address</label>
-                <input type="text" id="address" name="address" value="<?= e($user['address']) ?>">
+                <input type="text" id="address" name="address" value="<?= e($user['address']) ?>" readonly>
             </div>
             <div class="field">
                 <label for="city">City</label>
-                <input type="text" id="city" name="city" value="<?= e($user['city']) ?>">
+                <input type="text" id="city" name="city" value="<?= e($user['city']) ?>" readonly>
             </div>
         </div>
-        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save profile</button>
+        <div class="profile-actions">
+            <button class="btn btn-primary" type="button" id="profileEditBtn"><i class="fa-solid fa-pen"></i> Update profile</button>
+            <button class="btn btn-primary" type="submit" id="profileSaveBtn" hidden><i class="fa-solid fa-floppy-disk"></i> Save changes</button>
+            <button class="btn btn-outline" type="button" id="profileCancelBtn" hidden>Cancel</button>
+        </div>
     </form>
 </section>
 

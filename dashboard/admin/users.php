@@ -27,6 +27,9 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>ID</th><th>Name</th><th>Role</th><th>City</th><th>Joined</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
+                <?php if (empty($users)): ?>
+                <tr><td colspan="7" class="muted">No users in the directory.</td></tr>
+                <?php endif; ?>
                 <?php foreach ($users as $u): ?>
                 <tr>
                     <td><?= e($u['public_id']) ?></td>

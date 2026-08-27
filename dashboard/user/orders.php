@@ -27,7 +27,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Order</th><th>Product</th><th>Date</th><th>Amount</th><th>Status</th></tr>
             </thead>
             <tbody>
-                <?php if (!$orders): ?>
+                <?php if (empty($orders)): ?>
                 <tr><td colspan="5" class="muted">No orders yet.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($orders as $order): ?>

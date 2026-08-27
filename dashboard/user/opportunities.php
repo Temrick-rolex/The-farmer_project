@@ -19,7 +19,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
 </section>
 
 <section class="quick-grid">
-    <?php if (!$saved): ?>
+    <?php if (empty($saved)): ?>
     <article class="quick-card">
         <div class="feature-icon"><i class="fa-solid fa-bookmark"></i></div>
         <div>

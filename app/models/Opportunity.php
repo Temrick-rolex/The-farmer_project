@@ -83,6 +83,9 @@ class Opportunity
 
     public static function countForUser(int $userId): int
     {
+        if (!TF_DB_OK) {
+            return 0;
+        }
         $row = Database::fetch(
             "SELECT COUNT(*) AS c FROM opportunity_applications WHERE user_id = ? AND status IN ('pending','accepted','saved')",
             [$userId]

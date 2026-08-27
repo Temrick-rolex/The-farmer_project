@@ -129,6 +129,9 @@ class Order
 
     public static function pendingCountForVendor(int $vendorId): int
     {
+        if (!TF_DB_OK) {
+            return 0;
+        }
         $row = Database::fetch(
             "SELECT COUNT(DISTINCT o.id) AS c
                FROM orders o
@@ -141,6 +144,9 @@ class Order
 
     public static function salesForVendor(int $vendorId): int
     {
+        if (!TF_DB_OK) {
+            return 0;
+        }
         $row = Database::fetch(
             "SELECT COALESCE(SUM(oi.qty * oi.unit_xaf),0) AS s
                FROM order_items oi
@@ -189,7 +195,22 @@ class Order
 
     public static function countForUser(int $userId): int
     {
+        if (!TF_DB_OK) {
+            return 0;
+        }
         $row = Database::fetch('SELECT COUNT(*) AS c FROM orders WHERE user_id = ?', [$userId]);
+        return (int) ($row['c'] ?? 0);
+    }
+
+    public static function countThisMonth(int $userId): int
+    {
+        if (!TF_DB_OK) {
+            return 0;
+        }
+        $row = Database::fetch(
+            "SELECT COUNT(*) AS c FROM orders WHERE user_id = ? AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')",
+            [$userId]
+        );
         return (int) ($row['c'] ?? 0);
     }
 }

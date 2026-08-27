@@ -58,6 +58,9 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Name</th><th>Role</th><th>City</th></tr>
                 </thead>
                 <tbody>
+                    <?php if (empty($users)): ?>
+                    <tr><td colspan="3" class="muted">No accounts yet.</td></tr>
+                    <?php endif; ?>
                     <?php foreach (array_slice($users, 0, 5) as $u): ?>
                     <tr>
                         <td>
@@ -84,7 +87,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Product</th><th>Vendor</th></tr>
                 </thead>
                 <tbody>
-                    <?php if (!$queue): ?>
+                    <?php if (empty($queue)): ?>
                     <tr><td colspan="2" class="muted">Queue is clear.</td></tr>
                     <?php endif; ?>
                     <?php foreach ($queue as $row): ?>
@@ -113,6 +116,9 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                 <tr><th>Program</th><th>Type</th><th>From</th><th>Status</th></tr>
             </thead>
             <tbody>
+                <?php if (empty($opps)): ?>
+                <tr><td colspan="4" class="muted">No programs yet.</td></tr>
+                <?php endif; ?>
                 <?php foreach ($opps as $row): ?>
                 <tr>
                     <td><strong><?= e($row['title']) ?></strong></td>

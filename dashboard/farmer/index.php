@@ -10,6 +10,8 @@ $products = Product::forVendor($user['uid']);
 $orders = Order::forVendor($user['uid']);
 $sales = Order::salesForVendor($user['uid']);
 $pending = Order::pendingCountForVendor($user['uid']);
+$soldOut = Product::countStatus($user['uid'], 'sold_out');
+$pendingListings = Product::countStatus($user['uid'], 'pending');
 require TF_DASHBOARD . '/includes/layout-start.php';
 ?>
 
@@ -27,7 +29,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div>
             <div class="k">Total sales</div>
             <div class="v"><?= e(money($sales)) ?></div>
-            <div class="hint">This season</div>
+            <div class="hint">From paid orders</div>
         </div>
     </article>
     <article class="stat-card">
@@ -35,7 +37,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <div>
             <div class="k">Products listed</div>
             <div class="v"><?= e(count($products)) ?></div>
-            <div class="hint">Awaiting review or live</div>
+            <div class="hint"><?= e($pendingListings) ?> pending · <?= e($soldOut) ?> sold out</div>
         </div>
     </article>
     <article class="stat-card">
@@ -68,7 +70,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Product</th><th>Stock</th><th>Price</th><th></th></tr>
                 </thead>
                 <tbody>
-                    <?php if (!$products): ?>
+                    <?php if (empty($products)): ?>
                     <tr><td colspan="4" class="muted">No listings yet.</td></tr>
                     <?php endif; ?>
                     <?php foreach (array_slice($products, 0, 4) as $p): ?>
@@ -95,7 +97,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
                     <tr><th>Buyer</th><th>Status</th></tr>
                 </thead>
                 <tbody>
-                    <?php if (!$orders): ?>
+                    <?php if (empty($orders)): ?>
                     <tr><td colspan="2" class="muted">No sales yet.</td></tr>
                     <?php endif; ?>
                     <?php foreach (array_slice($orders, 0, 4) as $o): ?>

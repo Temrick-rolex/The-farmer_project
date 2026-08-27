@@ -40,7 +40,7 @@ require TF_APP . '/includes/header.php';
                 <?php endforeach; ?>
             </div>
 
-            <?php if (!$products): ?>
+            <?php if (empty($products)): ?>
             <div class="shop-empty show">
                 <i class="fa-solid fa-seedling"></i>
                 <h3>The shop is empty</h3>

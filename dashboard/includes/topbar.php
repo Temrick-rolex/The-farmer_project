@@ -1,6 +1,7 @@
 <?php
 $user = current_user();
 $tf_heading = $tf_heading ?? 'Dashboard';
+$tf_unread = Message::unreadCount((int) $user['uid']);
 ?>
 <header class="dash-topbar">
     <button class="icon-btn dash-burger" type="button" data-sidebar-open aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
@@ -12,7 +13,7 @@ $tf_heading = $tf_heading ?? 'Dashboard';
         <button class="icon-btn theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
         <a class="icon-btn" href="<?= e(url('dashboard/user/messages.php')) ?>" aria-label="Messages">
             <i class="fa-solid fa-bell"></i>
-            <span class="dash-dot"></span>
+            <?php if ($tf_unread): ?><span class="dash-dot"></span><?php endif; ?>
         </a>
         <a class="dash-top-user" href="<?= e(url('dashboard/account/profile.php')) ?>">
             <img src="<?= e(asset($user['avatar'])) ?>" alt="">

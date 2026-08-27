@@ -24,7 +24,7 @@ require TF_DASHBOARD . '/includes/layout-start.php';
         <h3><i class="fa-solid fa-comments"></i> Recent threads</h3>
     </div>
     <div class="msg-list">
-        <?php if (!$inbox): ?>
+        <?php if (empty($inbox)): ?>
         <p class="muted" style="padding:18px">No messages yet. Write to the farm below.</p>
         <?php endif; ?>
         <?php foreach ($inbox as $msg): ?>

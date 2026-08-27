@@ -28,6 +28,28 @@ const SKIP_RENDER = new Set([
   path.join(ROOT, 'app/config/database.php'),
 ]);
 
+const GUEST_USER = {
+  uid: 0,
+  id: '',
+  name: 'Guest',
+  first_name: 'Guest',
+  email: '',
+  phone: '',
+  address: '',
+  city: 'Yaoundé',
+  country: 'Cameroon',
+  role: 'customer',
+  gender: '',
+  payment: 'Mobile money',
+  member_since: '2026',
+  avatar: 'Image/profile.jpg',
+  wallet: 0,
+  language: 'english',
+  theme: 'light',
+  currency: 'xaf',
+  status: 'active',
+};
+
 const DEMO_USER = {
   uid: 1,
   id: '01XJ00F',
@@ -48,22 +70,6 @@ const DEMO_USER = {
   theme: 'light',
   currency: 'xaf',
   status: 'active',
-};
-
-const DEMO = {
-  TF_ORDERS: [
-    { id: 'TF-1042', item: 'Mixed Citrus Platter — 6 kg', date: '12 Aug 2026', amount: 6000, status: 'delivered', tone: 'ok' },
-    { id: 'TF-1017', item: 'Mature Orange Tree (Valencia)', date: '28 Jul 2026', amount: 30000, status: 'in_delivery', tone: 'warn' },
-    { id: 'TF-1004', item: 'Fresh Orange Juice — 1 L × 4', date: '11 Jul 2026', amount: 7200, status: 'delivered', tone: 'ok' },
-    { id: 'TF-0988', item: 'Orchard Box — 1 month', date: '02 Jul 2026', amount: 12000, status: 'delivered', tone: 'ok' },
-    { id: 'TF-0961', item: 'Farm Visit & Self-Harvest × 2', date: '18 Jun 2026', amount: 30000, status: 'completed', tone: 'ok' },
-  ],
-  TF_FARMER_ORDERS: [
-    { id: 6, public_id: 'TF-1048', buyer: 'Bella Ngwa', item: 'Fresh Oranges — 5 kg × 2', amount: 7000, status: 'packing', city: 'Yaoundé', tone: 'warn' },
-    { id: 7, public_id: 'TF-1046', buyer: 'Jean-Claude Mbarga', item: 'Mature Tangerine Tree', amount: 25000, status: 'in_delivery', city: 'Bafoussam', tone: 'warn' },
-    { id: 8, public_id: 'TF-1043', buyer: 'Aminata Salla', item: 'Mixed Citrus Platter', amount: 6000, status: 'packing', city: 'Bamenda', tone: 'warn' },
-    { id: 9, public_id: 'TF-1039', buyer: 'Patrick Etoundi', item: 'Farm Visit × 3', amount: 45000, status: 'paid', city: 'Douala', tone: 'warn' },
-  ],
 };
 
 const LIVE_PRODUCTS = [
@@ -97,27 +103,78 @@ const LIVE_OPPS = [
 ];
 
 const DEMO_USERS = [
-  { id: 1, public_id: '01XJ00F', name: 'John Doe', email: 'john@thefarmer.cm', role: 'customer', city: 'Yaoundé', created_at: '2024-02-11', status: 'active' },
-  { id: 2, public_id: '02BN14K', name: 'Bella Ngwa', email: 'bella@thefarmer.cm', role: 'customer', city: 'Yaoundé', created_at: '2025-01-18', status: 'active' },
-  { id: 3, public_id: '03JM22P', name: 'Jean-Claude Mbarga', email: 'jean@thefarmer.cm', role: 'farmer', city: 'Bafoussam', created_at: '2024-05-02', status: 'active' },
-  { id: 4, public_id: '04AS09M', name: 'Aminata Salla', email: 'aminata@thefarmer.cm', role: 'customer', city: 'Bamenda', created_at: '2025-03-09', status: 'active' },
-  { id: 5, public_id: '05PE31D', name: 'Patrick Etoundi', email: 'patrick@thefarmer.cm', role: 'farmer', city: 'Douala', created_at: '2023-11-20', status: 'active' },
-  { id: 6, public_id: '06NK18T', name: 'Ngono Kesseng', email: 'ngono@thefarmer.cm', role: 'admin', city: 'Yaoundé', created_at: '2023-08-01', status: 'active' },
-  { id: 7, public_id: '07MF44R', name: 'Mballa Farms', email: 'mballa@thefarmer.cm', role: 'farmer', city: 'Mbalmayo', created_at: '2025-06-01', status: 'active' },
+  { id: 1, public_id: '01XJ00F', name: 'John Doe', email: 'john@thefarmer.cm', role: 'customer', phone: '+237 605 048 910', address: 'Yaoundé, Simbock — Mendong', city: 'Yaoundé', country: 'Cameroon', payment: 'Mobile money', gender: 'Male', wallet_xaf: 12400, created_at: '2024-02-11', status: 'active' },
+  { id: 2, public_id: '02BN14K', name: 'Bella Ngwa', email: 'bella@thefarmer.cm', role: 'customer', phone: '+237 677 112 233', address: 'Bastos, Yaoundé', city: 'Yaoundé', country: 'Cameroon', payment: 'Cash', gender: 'Female', wallet_xaf: 3500, created_at: '2025-01-18', status: 'active' },
+  { id: 3, public_id: '03JM22P', name: 'Jean-Claude Mbarga', email: 'jean@thefarmer.cm', role: 'farmer', phone: '+237 699 445 566', address: 'Banengo, Bafoussam', city: 'Bafoussam', country: 'Cameroon', payment: 'Mobile money', gender: 'Male', wallet_xaf: 86000, created_at: '2024-05-02', status: 'active' },
+  { id: 4, public_id: '04AS09M', name: 'Aminata Salla', email: 'aminata@thefarmer.cm', role: 'customer', phone: '+237 655 778 899', address: 'Commercial Avenue, Bamenda', city: 'Bamenda', country: 'Cameroon', payment: 'Visa', gender: 'Female', wallet_xaf: 0, created_at: '2025-03-09', status: 'active' },
+  { id: 5, public_id: '05PE31D', name: 'Patrick Etoundi', email: 'patrick@thefarmer.cm', role: 'farmer', phone: '+237 670 221 334', address: 'Akwa, Douala', city: 'Douala', country: 'Cameroon', payment: 'Bank card', gender: 'Male', wallet_xaf: 54000, created_at: '2023-11-20', status: 'active' },
+  { id: 6, public_id: '06NK18T', name: 'Ngono Kesseng', email: 'ngono@thefarmer.cm', role: 'admin', phone: '+237 605 048 910', address: 'Mendong, Yaoundé', city: 'Yaoundé', country: 'Cameroon', payment: 'Mobile money', gender: 'Female', wallet_xaf: 0, created_at: '2023-08-01', status: 'active' },
+  { id: 7, public_id: '07MF44R', name: 'Mballa Farms', email: 'mballa@thefarmer.cm', role: 'farmer', phone: '+237 681 900 112', address: 'Mbalmayo', city: 'Mbalmayo', country: 'Cameroon', payment: 'Mobile money', gender: 'Male', wallet_xaf: 12000, created_at: '2025-06-01', status: 'active' },
+];
+
+const LIVE_ORDERS = [
+  { id: 1, public_id: 'TF-1042', user_id: 1, total_xaf: 6000, status: 'delivered', city: 'Yaoundé', created_at: '2026-08-12 10:22:00', items: [{ vendor_id: 3, name_snapshot: 'Mixed Citrus Platter — 6 kg', qty: 1, unit_xaf: 6000 }] },
+  { id: 2, public_id: 'TF-1017', user_id: 1, total_xaf: 31000, status: 'in_delivery', city: 'Yaoundé', created_at: '2026-07-28 15:10:00', items: [{ vendor_id: 3, name_snapshot: 'Mature Orange Tree (Valencia)', qty: 1, unit_xaf: 30000 }] },
+  { id: 3, public_id: 'TF-1004', user_id: 1, total_xaf: 7200, status: 'delivered', city: 'Yaoundé', created_at: '2026-07-11 09:05:00', items: [{ vendor_id: 3, name_snapshot: 'Fresh Orange Juice — 1 L', qty: 4, unit_xaf: 1800 }] },
+  { id: 4, public_id: 'TF-0988', user_id: 1, total_xaf: 12000, status: 'delivered', city: 'Yaoundé', created_at: '2026-07-02 18:40:00', items: [{ vendor_id: 5, name_snapshot: 'Orchard Box — 1 month', qty: 1, unit_xaf: 12000 }] },
+  { id: 5, public_id: 'TF-0961', user_id: 1, total_xaf: 30000, status: 'completed', city: 'Yaoundé', created_at: '2026-06-18 08:00:00', items: [{ vendor_id: 3, name_snapshot: 'Farm Visit & Self-Harvest', qty: 2, unit_xaf: 15000 }] },
+  { id: 6, public_id: 'TF-1048', user_id: 2, total_xaf: 7000, status: 'packing', city: 'Yaoundé', created_at: '2026-08-25 11:12:00', items: [{ vendor_id: 3, name_snapshot: 'Fresh Oranges — 5 kg basket', qty: 2, unit_xaf: 3500 }] },
+  { id: 7, public_id: 'TF-1046', user_id: 3, total_xaf: 25000, status: 'in_delivery', city: 'Bafoussam', created_at: '2026-08-24 17:00:00', items: [{ vendor_id: 3, name_snapshot: 'Mature Tangerine Tree', qty: 1, unit_xaf: 25000 }] },
+  { id: 8, public_id: 'TF-1043', user_id: 4, total_xaf: 6000, status: 'packing', city: 'Bamenda', created_at: '2026-08-24 09:30:00', items: [{ vendor_id: 3, name_snapshot: 'Mixed Citrus Platter — 6 kg', qty: 1, unit_xaf: 6000 }] },
+  { id: 9, public_id: 'TF-1039', user_id: 5, total_xaf: 45000, status: 'paid', city: 'Douala', created_at: '2026-08-20 13:45:00', items: [{ vendor_id: 3, name_snapshot: 'Farm Visit & Self-Harvest', qty: 3, unit_xaf: 15000 }] },
+];
+
+const LIVE_MESSAGES = [
+  { sender_id: 6, recipient_id: 1, sender_name: 'Ngono Kesseng', subject: 'Delivery today', body: 'Your Valencia tree is out for delivery in Yaoundé today. Please keep a clear path to the courtyard.', created_at: '2026-08-26 09:14:00', is_read: 0 },
+  { sender_id: 3, recipient_id: 1, sender_name: 'Jean-Claude Mbarga', subject: 'Mentorship visit', body: 'Shall we visit the Simbock plot on Saturday morning? Bring a notebook and boots.', created_at: '2026-08-25 18:02:00', is_read: 0 },
+  { sender_id: 6, recipient_id: 1, sender_name: 'Ngono Kesseng', subject: 'Orchard Box', body: 'Your Orchard Box for August has been packed. The rider will call from a +237 number.', created_at: '2026-08-11 10:40:00', is_read: 1 },
+  { sender_id: 6, recipient_id: 3, sender_name: 'Ngono Kesseng', subject: 'Listing received', body: 'We received your Pink Grapefruit Tree listing. An admin will review it within 48 hours.', created_at: '2026-08-24 11:05:00', is_read: 0 },
+  { sender_id: 6, recipient_id: 2, sender_name: 'Ngono Kesseng', subject: 'Order TF-1048', body: 'Bella, we are packing your two orange baskets. Pickup in Bastos is ready from 16:00.', created_at: '2026-08-25 11:30:00', is_read: 0 },
+];
+
+const LIVE_APPS = [
+  { user_id: 1, opportunity_id: 1, status: 'pending', created_at: '2026-08-04 09:00:00' },
+  { user_id: 1, opportunity_id: 2, status: 'accepted', created_at: '2026-05-12 09:00:00' },
+  { user_id: 2, opportunity_id: 5, status: 'pending', created_at: '2026-08-01 12:00:00' },
+  { user_id: 4, opportunity_id: 3, status: 'saved', created_at: '2026-07-22 16:00:00' },
 ];
 
 function asset(p) {
   return ASSET_URL + '/' + String(p).replace(/\\/g, '/').replace(/^\/+/, '');
 }
 
+function presentUser(row, extra) {
+  const name = String((row && row.name) || 'User');
+  const created = String((row && row.created_at) || '');
+  const year = created ? created.slice(0, 4) : String(new Date().getFullYear());
+  return Object.assign({
+    uid: row.id,
+    id: row.public_id,
+    name,
+    first_name: name.split(/\s+/)[0],
+    email: row.email || '',
+    phone: row.phone || '',
+    address: row.address || '',
+    city: row.city || 'Yaoundé',
+    country: row.country || 'Cameroon',
+    role: row.role || 'customer',
+    gender: row.gender || '',
+    payment: row.payment || 'Mobile money',
+    member_since: year,
+    avatar: row.avatar || 'Image/profile.jpg',
+    wallet: Number(row.wallet_xaf || 0),
+    language: row.language || 'english',
+    theme: row.theme || 'light',
+    currency: row.currency || 'xaf',
+    status: row.status || 'active',
+  }, extra || {});
+}
+
 const Product = {
   allLive: () => LIVE_PRODUCTS.filter((p) => p.status === 'live' || p.status === 'sold_out'),
   featured: (n) => LIVE_PRODUCTS.filter((p) => p.is_featured && p.status === 'live').slice(0, n || 4),
   find: (id) => LIVE_PRODUCTS.find((p) => p.id === Number(id)) || null,
-  forVendor: (id) => {
-    const list = LIVE_PRODUCTS.filter((p) => p.vendor_id === Number(id));
-    return list.length ? list : LIVE_PRODUCTS.filter((p) => p.vendor_id === 3);
-  },
+  forVendor: (id) => LIVE_PRODUCTS.filter((p) => p.vendor_id === Number(id)),
   pendingApproval: () => LIVE_PRODUCTS.filter((p) => p.status === 'pending'),
   catalogForJs: () => {
     const out = {};
@@ -127,16 +184,54 @@ const Product = {
     return out;
   },
   countForVendor: (id) => Product.forVendor(id).length,
+  countStatus: (id, status) => LIVE_PRODUCTS.filter((p) => p.vendor_id === Number(id) && p.status === status).length,
 };
 
+function presentCustomerOrders(uid) {
+  return LIVE_ORDERS.filter((o) => o.user_id === Number(uid)).map((o) => {
+    const names = o.items.map((i) => i.name_snapshot + (i.qty > 1 ? ' × ' + i.qty : ''));
+    return {
+      id: o.public_id,
+      item: names.join(', '),
+      date: phpDate('j M Y', phpStrtotime(o.created_at)),
+      amount: o.total_xaf,
+      status: o.status,
+      tone: tf_status_ok(o.status) ? 'ok' : 'warn',
+    };
+  });
+}
+
+function presentVendorOrders(vid) {
+  return LIVE_ORDERS.filter((o) => o.items.some((i) => i.vendor_id === Number(vid))).map((o) => {
+    const mine = o.items.filter((i) => i.vendor_id === Number(vid));
+    const names = mine.map((i) => i.name_snapshot + (i.qty > 1 ? ' × ' + i.qty : ''));
+    const amount = mine.reduce((s, i) => s + i.qty * i.unit_xaf, 0);
+    const buyer = (DEMO_USERS.find((u) => u.id === o.user_id) || {}).name || '';
+    return {
+      id: o.id,
+      public_id: o.public_id,
+      buyer,
+      item: names.join(', '),
+      city: o.city,
+      amount,
+      status: o.status,
+      tone: tf_status_ok(o.status) ? 'ok' : 'warn',
+    };
+  });
+}
+
 const Order = {
-  forCustomer: () => DEMO.TF_ORDERS,
-  forVendor: () => DEMO.TF_FARMER_ORDERS,
-  countForUser: () => DEMO.TF_ORDERS.length,
-  pendingCountForVendor: () => DEMO.TF_FARMER_ORDERS.length,
-  salesForVendor: () => 1245000,
-  count: () => 9,
-  revenue: () => 169200,
+  forCustomer: (id) => presentCustomerOrders(id),
+  forVendor: (id) => presentVendorOrders(id),
+  countForUser: (id) => LIVE_ORDERS.filter((o) => o.user_id === Number(id)).length,
+  countThisMonth: (id) => {
+    const prefix = new Date().toISOString().slice(0, 7);
+    return LIVE_ORDERS.filter((o) => o.user_id === Number(id) && String(o.created_at).slice(0, 7) === prefix).length;
+  },
+  pendingCountForVendor: (id) => presentVendorOrders(id).filter((o) => ['paid', 'packing', 'in_delivery'].includes(o.status)).length,
+  salesForVendor: (id) => presentVendorOrders(id).reduce((s, o) => s + o.amount, 0),
+  count: () => LIVE_ORDERS.length,
+  revenue: () => LIVE_ORDERS.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + o.total_xaf, 0),
 };
 
 const User = {
@@ -149,22 +244,18 @@ const Opportunity = {
   allLive: () => LIVE_OPPS.filter((o) => o.status === 'live'),
   all: () => LIVE_OPPS,
   find: (id) => LIVE_OPPS.find((o) => o.id === Number(id)) || null,
-  savedBy: () => [
-    { title: 'Partnership Program', icon: 'fa-handshake', application_status: 'pending', applied_at: '2026-08-04' },
-    { title: 'Mentorship Program', icon: 'fa-hands-holding-child', application_status: 'accepted', applied_at: '2026-05-12' },
-  ],
+  savedBy: (uid) => LIVE_APPS.filter((a) => a.user_id === Number(uid)).map((a) => {
+    const o = LIVE_OPPS.find((x) => x.id === a.opportunity_id) || {};
+    return Object.assign({}, o, { application_status: a.status, applied_at: a.created_at });
+  }),
   countLive: () => LIVE_OPPS.filter((o) => o.status === 'live').length,
   countPending: () => LIVE_OPPS.filter((o) => o.status === 'pending').length,
-  countForUser: () => 2,
+  countForUser: (uid) => LIVE_APPS.filter((a) => a.user_id === Number(uid) && ['pending', 'accepted', 'saved'].includes(a.status)).length,
 };
 
 const Message = {
-  inbox: () => [
-    { sender_name: 'The Farmer Support', subject: 'Delivery today', body: 'Your Valencia tree is out for delivery in Yaoundé today.', created_at: '2026-08-26', is_read: 0 },
-    { sender_name: 'Jean-Claude Mbarga', subject: 'Mentorship visit', body: 'Shall we visit the Simbock plot on Saturday morning?', created_at: '2026-08-25', is_read: 0 },
-    { sender_name: 'Harvest desk', subject: 'Orchard Box', body: 'Your Orchard Box for August has been packed.', created_at: '2026-08-11', is_read: 1 },
-  ],
-  unreadCount: () => 2,
+  inbox: (uid) => LIVE_MESSAGES.filter((m) => m.recipient_id === Number(uid)),
+  unreadCount: (uid) => LIVE_MESSAGES.filter((m) => m.recipient_id === Number(uid) && !m.is_read).length,
   markRead: () => null,
 };
 
@@ -179,9 +270,10 @@ const Setting = {
 };
 
 class Redirect extends Error {
-  constructor(location) {
+  constructor(location, session) {
     super('REDIRECT');
     this.location = location;
+    this.session = session || null;
   }
 }
 
@@ -322,9 +414,9 @@ function makeCtx(req, extra) {
     tf_role: (user && user.role) || 'customer',
     tf_flash: session.flash || null,
     _session: session,
-  }, DEMO, extra || {});
+  }, extra || {});
 
-  ctx.current_user = function () { return user || DEMO_USER; };
+  ctx.current_user = function () { return user || Object.assign({}, GUEST_USER); };
   ctx.is_logged_in = function () { return !!(session.user); };
   ctx.flash_get = function () {
     const f = ctx.tf_flash;
@@ -466,6 +558,28 @@ function splitIfBranches(tokens) {
   return branches;
 }
 
+function enforceLogin(ctx) {
+  if (!ctx.is_logged_in()) {
+    ctx._session.flash = { type: 'info', message: 'Please log in to open your workspace.' };
+    throw new Redirect(url('regform.php'), ctx._session);
+  }
+  const u = ctx.current_user();
+  if ((u.status || 'active') === 'suspended') {
+    delete ctx._session.user;
+    ctx._session.flash = { type: 'error', message: 'This account has been suspended. Call the farm.' };
+    throw new Redirect(url('regform.php'), ctx._session);
+  }
+}
+
+function enforceRole(ctx, roles) {
+  enforceLogin(ctx);
+  const role = ctx.current_user().role || '';
+  if ((roles || []).indexOf(role) === -1) {
+    ctx._session.flash = { type: 'error', message: 'You do not have access to that workspace.' };
+    throw new Redirect(tf_role_home(role), ctx._session);
+  }
+}
+
 function renderTokens(tokens, ctx) {
   let out = '';
   for (let i = 0; i < tokens.length; i++) {
@@ -517,6 +631,15 @@ function renderTokens(tokens, ctx) {
     splitStatements(t.value).forEach((stmt) => {
       if (stmt === 'endif' || stmt === 'endforeach' || stmt === 'else' || stmt.startsWith('elseif')) return;
       if (stmt.startsWith('return')) return;
+      if (/^require_login\s*\(\s*\)$/.test(stmt)) {
+        enforceLogin(ctx);
+        return;
+      }
+      if (/^require_role\s*\(/.test(stmt)) {
+        const inner = stmt.slice(stmt.indexOf('(') + 1, stmt.lastIndexOf(')'));
+        enforceRole(ctx, evalExpr(inner, ctx) || []);
+        return;
+      }
       if (/^require(?:_once)?\s+/.test(stmt)) {
         const expr = stmt.replace(/^require(?:_once)?\s+/, '');
         const resolved = evalExpr(expr, ctx);
@@ -525,7 +648,7 @@ function renderTokens(tokens, ctx) {
       }
       if (/^redirect\s*\(/.test(stmt)) {
         const inner = stmt.slice(stmt.indexOf('(') + 1, stmt.lastIndexOf(')'));
-        throw new Redirect(url(evalExpr(inner, ctx)));
+        throw new Redirect(url(evalExpr(inner, ctx)), ctx._session);
       }
       const assign = stmt.match(/^\$([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([\s\S]+)$/);
       if (assign) {
@@ -553,24 +676,23 @@ function renderFile(filePath, ctx) {
 
 function previewUserFromLogin(loginRaw) {
   const login = String(loginRaw || '').trim().toLowerCase();
-  const hit = DEMO_USERS.find((u) => u.email === login || u.name.toLowerCase() === login || u.public_id.toLowerCase() === login);
-  if (hit) {
-    const first = hit.name.split(/\s+/)[0];
-    return Object.assign({}, DEMO_USER, {
-      uid: hit.id,
-      id: hit.public_id,
-      name: hit.name,
-      first_name: first,
-      email: hit.email,
-      role: hit.role,
-      city: hit.city,
-    });
-  }
-  const name = String(loginRaw || '').trim() || 'John Doe';
-  return Object.assign({}, DEMO_USER, {
+  const hit = DEMO_USERS.find((u) =>
+    String(u.email).toLowerCase() === login
+    || String(u.name).toLowerCase() === login
+    || String(u.public_id).toLowerCase() === login
+  );
+  if (hit) return presentUser(hit);
+  const name = String(loginRaw || '').trim() || 'Guest';
+  return presentUser({
+    id: 0,
+    public_id: '',
     name,
-    first_name: name.split(/\s+/)[0],
-    email: name.includes('@') ? name : DEMO_USER.email,
+    email: name.includes('@') ? name : '',
+    role: 'customer',
+    city: 'Yaoundé',
+    created_at: String(new Date().getFullYear()),
+    wallet_xaf: 0,
+    status: 'active',
   });
 }
 
@@ -590,19 +712,23 @@ function handleProcess(req, res, fields, session) {
   }
 
   if (action === 'register') {
-    const name = String(fields.Uname || '').trim() || 'John Doe';
+    const name = String(fields.Uname || '').trim() || 'New grower';
     let role = fields.account_type || 'customer';
     if (!['customer', 'farmer'].includes(role)) role = 'customer';
-    const first = name.split(/\s+/)[0];
-    setUser(Object.assign({}, DEMO_USER, {
+    setUser(presentUser({
+      id: 0,
+      public_id: 'NEW',
       name,
-      first_name: first,
-      email: fields.email || 'john@thefarmer.cm',
+      email: fields.email || '',
       phone: ((fields.countrycode || '') + ' ' + (fields.telnum || '')).trim(),
-      address: fields.adress || DEMO_USER.address,
+      address: fields.adress || '',
+      city: 'Yaoundé',
       role,
       gender: fields.gender || 'Male',
       payment: fields.paymentmode || 'Mobile money',
+      created_at: String(new Date().getFullYear()),
+      wallet_xaf: 0,
+      status: 'active',
     }));
     res.writeHead(302, { Location: tf_role_home(role), 'Set-Cookie': sessionCookie(session) });
     res.end();
@@ -648,6 +774,11 @@ function handleProcess(req, res, fields, session) {
   }
 
   if (action === 'update_settings') {
+    if (session.user) {
+      session.user.language = fields.language || session.user.language;
+      session.user.theme = fields.theme || session.user.theme;
+      session.user.currency = fields.currency || session.user.currency;
+    }
     session.flash = { type: 'success', message: 'Preferences saved to your account.' };
     res.writeHead(302, { Location: url('dashboard/account/settings.php'), 'Set-Cookie': sessionCookie(session) });
     res.end();
@@ -785,7 +916,9 @@ const server = http.createServer(async (req, res) => {
         res.end(html);
       } catch (err) {
         if (err instanceof Redirect) {
-          res.writeHead(302, { Location: err.location });
+          const headers = { Location: err.location };
+          if (err.session) headers['Set-Cookie'] = sessionCookie(err.session);
+          res.writeHead(302, headers);
           res.end();
           return;
         }
