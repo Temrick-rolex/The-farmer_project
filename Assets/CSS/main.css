@@ -677,3 +677,13 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* Public flash (also defined in dashboard.css) */
+.dash-flash {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 12px;
+  font-weight: 700; font-size: 14.5px;
+}
+.dash-flash-success { background: var(--green-100); color: var(--green-700); }
+.dash-flash-info { background: var(--orange-100); color: var(--orange-700); }
+.dash-flash-error { background: #fde8e6; color: var(--danger); }

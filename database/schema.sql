@@ -1,0 +1,17 @@
+-- =============================================================================
+-- The Farmer — import database/the_farmer.sql (this file is a pointer only).
+--
+--   mysql -u root -p < database/the_farmer.sql
+--   or: phpMyAdmin → Import → the_farmer.sql
+--
+-- Tables
+--   users                     accounts (password_hash, never plaintext)
+--   products                  listings in integer XAF (pending/live/rejected/sold_out)
+--   orders / order_items      checkout + fulfilment
+--   opportunities             programs
+--   opportunity_applications  apply / save
+--   messages                  support inbox
+--   newsletter_subscribers
+--   ratings
+--   platform_settings         delivery fee, support contacts
+-- =============================================================================

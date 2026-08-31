@@ -1,49 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign up / Log in · The Farmer</title>
-    <meta name="description" content="Create your The Farmer account or log in to shop fresh citrus from Cameroon.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="Assets/fontawesome/css/all.css">
-    <link rel="stylesheet" href="Assets/CSS/main.css">
-    <link rel="shortcut icon" href="Assets/Image/RO.png" type="image/png">
-    <script>(function(){try{var t=localStorage.getItem('tf-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
-</head>
-<body>
-
-<header class="nav">
-    <div class="container nav-inner">
-        <a class="brand" href="index.php">
-            <img src="Assets/Image/RO.png" alt="The Farmer logo">
-            <span class="brand-name">The <b>Farmer</b></span>
-        </a>
-        <nav class="nav-links" aria-label="Main navigation">
-            <a href="index.php">Home</a>
-            <a href="product.php">Products</a>
-            <a href="opportunity.php">Opportunity</a>
-            <a href="settings.php">Settings</a>
-        </nav>
-        <div class="nav-actions">
-            <button class="icon-btn theme-toggle" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
-            <a class="icon-btn cart-link" href="product.php" aria-label="Open cart"><i class="fa-solid fa-cart-shopping"></i><span class="cart-count">0</span></a>
-            <a class="icon-btn" href="profile.php" aria-label="Your profile"><i class="fa-solid fa-user"></i></a>
-            <a class="btn btn-accent btn-sm signup-btn" href="regform.php">Sign up</a>
-            <button class="icon-btn nav-burger" aria-label="Menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
-        </div>
-    </div>
-</header>
+<?php
+require_once __DIR__ . '/app/includes/init.php';
+$tf_nav = 'auth';
+$tf_title = 'Sign up / Log in · The Farmer';
+$tf_description = 'Create your The Farmer account or log in to shop fresh citrus from Cameroon.';
+require TF_APP . '/includes/head.php';
+require TF_APP . '/includes/header.php';
+?>
 
 <div class="auth">
-    <!-- ============ MEDIA PANEL ============ -->
     <div class="auth-media">
-        <img src="Assets/Image/farm2.jpg" alt="Tractor working the fields at the farm">
+        <img src="<?= e(asset('Image/farm2.jpg')) ?>" alt="Tractor working the fields at the farm">
         <div class="hero-scrim"></div>
         <div class="auth-media-top">
-            <img src="Assets/Image/RO.png" alt="The Farmer logo">
+            <img src="<?= e(asset('Image/RO.png')) ?>" alt="The Farmer logo">
             <span>The Farmer</span>
         </div>
         <div class="auth-media-inner">
@@ -52,19 +21,19 @@
         </div>
     </div>
 
-    <!-- ============ FORM PANEL ============ -->
     <div class="auth-side">
         <div class="auth-card">
             <h1>Good to see you</h1>
             <p class="sub">New to The Farmer? Create an account. Already a member? Just log in.</p>
 
             <div class="tabs" role="tablist">
-                <button class="tab active" data-panel="signupPanel" role="tab" aria-selected="true">Create account</button>
-                <button class="tab" data-panel="loginPanel" role="tab" aria-selected="false">Log in</button>
+                <button class="tab active" data-panel="signupPanel" role="tab" aria-selected="true" type="button">Create account</button>
+                <button class="tab" data-panel="loginPanel" role="tab" aria-selected="false" type="button">Log in</button>
             </div>
 
-            <!-- SIGN UP -->
-            <form id="signupForm">
+            <form id="signupForm" action="<?= e(url('process.php')) ?>" method="POST">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="register">
                 <div id="signupPanel" class="form-panel active">
                     <div class="field">
                         <label for="su-name">Full name</label>
@@ -80,7 +49,7 @@
                         <div class="field">
                             <label for="su-pass">Password</label>
                             <div class="pw-wrap">
-                                <input type="password" id="su-pass" name="passwd" placeholder="Min. 6 characters" autocomplete="new-password">
+                                <input type="password" id="su-pass" name="passwd" placeholder="Min. 8 characters" autocomplete="new-password" minlength="8" required>
                                 <button type="button" class="pw-toggle" data-for="su-pass" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
                             </div>
                             <span class="field-error"></span>
@@ -141,21 +110,31 @@
                             </select>
                         </div>
                     </div>
-                    <div class="field">
-                        <label for="su-gender">Gender</label>
-                        <select id="su-gender" name="gender">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="field">
+                            <label for="su-gender">Gender</label>
+                            <select id="su-gender" name="gender">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="account_type">I am a</label>
+                            <select id="account_type" name="account_type">
+                                <option value="customer">Customer</option>
+                                <option value="farmer">Farmer / vendor</option>
+                            </select>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block btn-lg">Create my account</button>
                     <p class="auth-foot">Already have an account? <button type="button" class="tab-link" data-panel="loginPanel">Log in</button></p>
                 </div>
             </form>
 
-            <!-- LOG IN -->
-            <form id="loginForm">
+            <form id="loginForm" action="<?= e(url('process.php')) ?>" method="POST">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="login">
                 <div id="loginPanel" class="form-panel">
                     <div class="field">
                         <label for="li-user">Name or email</label>
@@ -170,6 +149,7 @@
                         </div>
                         <span class="field-error"></span>
                     </div>
+                    <p class="muted small" style="margin:-6px 0 16px">Your workspace opens from the role saved on your account. Demo password: <strong>Farmer2026!</strong></p>
                     <label class="remember"><input type="checkbox" name="remember" id="check"> Remember me</label>
                     <button type="submit" class="btn btn-accent btn-block btn-lg">Log in</button>
                     <p class="auth-foot">No account yet? <button type="button" class="tab-link" data-panel="signupPanel">Create one</button></p>
@@ -179,6 +159,6 @@
     </div>
 </div>
 
-<script src="Assets/JS/main.js"></script>
+<script src="<?= e(asset('JS/main.js')) ?>" nonce="<?= e(csp_nonce()) ?>"></script>
 </body>
 </html>
